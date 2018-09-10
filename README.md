@@ -20,17 +20,11 @@
 ├── CW_2017_2.0.c
 ├── CW_2017.c
 ├── gymsystem
-│   ├── clitest
-│   ├── clitest.cpp
-│   ├── clitest.cpp.out
-│   ├── gymsystem.cpp
-│   ├── gymsystem.cpp.out
-│   ├── mark.cpp
-│   ├── README.md
-│   ├── test
-│   ├── test.cpp
-│   └── test.cpp.out
-└── README.md
+├── gymsystem.cpp
+├── gymsystem.cpp.out
+├── README.md
+└── test.cpp
+
 
 
 ```
