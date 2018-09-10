@@ -4,6 +4,7 @@
 
 #include<iostream>
 #include<string>
+#include<regex>
 #include<fstream>
 
 #define START 6
@@ -28,7 +29,6 @@ class Order
 class Gym
 {
     public:
-        long id;
         float rent;
         string location;
         int age_limit;
@@ -36,35 +36,74 @@ class Gym
         string sport_type;
         string venue;
         string situation;
+        string id;
 };
 
 class Guest
 {
    public:
         int age;
-        int phone;
+        long phone;
         float count;
         char sex;
         string name;
         string email;
         string location;
         string id;
-        void init(string x,string y)
+        void init(string x,string y)//初始化函数
         {
             id=x;
             password=y;
         }
-        void show()//调试函数
+        void show()
         {
-            cout<<id<<endl;
-            cout<<password<<endl;
+            cout<<"您的电话号码是："<<phone<<endl;
+            cout<<"您的email是："<<email<<endl;
+            cout<<"您的所在地域是："<<location<<endl;
+            cout<<"您的密码是："<<password<<endl;
         }
-        int checkpwd(string pwd)//密码检测函数
+        void changepwd(string new_pwd)//密码修改函数
+        {
+            password = new_pwd;
+        }
+        void changephone(long new_phone)//电话号码修改函数
+        {
+            phone=new_phone;
+        }
+        void changelocation(string new_location)//地域修改函数
+        {
+            location=new_location;
+        }
+        void changemail(string new_email)//email修改函数
+        {
+            email=new_email;
+        }
+        int checkpwd(string pwd)//密码验证函数
         {
             if(pwd==password)
                 return 1;
             else 
                 return 0;
+        }
+        int checkphone(long phone_num)//电话号码检验函数
+        {
+            if(phone_num>=10000000000 && phone_num<=99999999999)
+                return 1;
+            else
+                return 0;
+        }
+        int checkemail(string email_num)//email检验函数
+        {
+            /*  
+                此处是利用regex库正则匹配E-Mail，
+                其中用户名可以匹配所有数字和大小写字母，但不能匹配特殊符号，
+                邮箱域名可以匹配所有小写字母，
+            */
+            regex pattern("([0-9A-Za-z]+)@([0-9a-z]+\\.[a-z]{2,3}(\\.[a-z]{2})?)");
+            if(regex_match(email_num, pattern))
+                return 1;
+            else
+                return 0; 
         }
         void modify();
         void gym_order();
@@ -79,7 +118,7 @@ class Guest
 class Admin
 {
     public:
-        int phone;
+        long phone;
         char sex;
         string name;
         string gym_name;
@@ -113,9 +152,125 @@ Order *order = new Order[10];
 Gym *gym = new Gym[10];
 
 /*-----------------------------------------------------【成员函数】------------------------------------------------------------------------------*/
+
+void outputline()
+{
+    cout<<"---------------------------------------------"<<endl;
+}
+
 void Guest::modify()
 {
 
+    while(1)
+    {
+        int operation,flag=0;
+        system("clear");
+        outputline();
+        cout<<"                 个人信息修改模块"<<endl;
+        outputline();
+        cout<<"                 1.修改电话"<<endl;
+        cout<<"                 2.修改密码"<<endl;
+        cout<<"                 3.修改邮箱"<<endl;
+        cout<<"                 4.修改地址"<<endl;
+        cout<<"                 5.退出"<<endl;
+        outputline();
+        Guest::show();
+        outputline();
+
+        cout<<"在此处继续选择您的操作："<<endl;
+        //scanf("%d",&operation);
+        cin>>operation;
+        switch(operation)
+        {
+            case 1://修改电话号码
+            {
+                long phone;
+                while(1)
+                {
+                    cout<<"[*]请输入新的电话号码："<<endl;
+                    cin>>phone;
+                    if(Guest::checkphone(phone))
+                    {
+                        
+                        changephone(phone);
+                        cout<<"[*]电话号码修改成功，现在您的电话号码是："<<phone<<endl;
+                        getchar();getchar();
+                        break;
+                    }
+                    else 
+                        cout<<"[*]您输入的电话号码格式有误！修改失败！"<<endl;
+                }
+                break;
+            }
+            case 2://修改密码
+            {
+                string old_pwd,new_pwd;
+                char cmd;
+                while(1)
+                {
+                    cout<<"[*1]请先输入旧密码：";
+                    cin>>old_pwd;
+                    if(checkpwd(old_pwd))
+                    {
+                        cout<<endl<<"[*2]密码正确！请输入新密码：";
+                        cin>>new_pwd;
+                        if(new_pwd.length()<6)
+                            cout<<"系统检测到您的密码安全性为：低，请问确定使用新密码吗？（y/n）";
+                        else if(new_pwd.length() >= 6 && new_pwd.length() <= 8)
+                            cout<<"系统检测到您的密码安全性为：中，请问确定使用新密码吗？（y/n）";
+                        else if(new_pwd.length() > 8)
+                            cout<<"系统检测到您的密码安全性为：高，请问确定使用新密码吗？（y/n）";
+                        cin>>cmd;
+                        if(cmd=='n' || cmd=='N')
+                            break;
+                        else 
+                        {
+                            changepwd(new_pwd);
+                            cout<<"密码修改成功，现在您的密码是："<<new_pwd<<endl;
+                            getchar();getchar();
+                            break;
+                        }
+                    }
+                    else 
+                        cout<<"密码不正确请重新输入!"<<endl;
+                }
+            }
+            case 3://修改邮箱
+            {
+                string email;
+                while(1)
+                {
+                    cout<<"[*]请输入新的email："<<endl;
+                    cin>>email;
+                    if(Guest::checkemail(email))
+                    {
+                        
+                        changemail(email);
+                        cout<<"[*]email修改成功，现在您的电话号码是："<<email<<endl;
+                        getchar();getchar();
+                        break;
+                    }
+                    else 
+                        cout<<"[*]您输入的email格式有误！修改失败！"<<endl;
+                }
+                break;
+            }
+            case 4://修改地域
+            {
+                string location;
+                cout<<"[*]请输入新的location："<<endl;
+                cin>>location;
+                changelocation(location);
+                cout<<"[*]location修改成功，现在您的电话号码是："<<location<<endl;
+                getchar();
+                break;
+            }
+            case 5:break;
+            default:{flag=1;break;}
+        }
+        if(flag=1)
+            break;
+    }  
 }
 
 void Guest::gym_query()
@@ -258,11 +413,6 @@ void login(int operation)
     
 }
 
-void outputline()
-{
-    cout<<"---------------------------------------------"<<endl;
-}
-
 void main_ui()
 {
     outputline();
@@ -278,7 +428,7 @@ void main_ui()
 void guest_ui()
 {
     outputline();
-    cout<<"                 欢迎你！顾客"<<guest[login_num].name<<endl;
+    cout<<"                 欢迎你！顾客"<<guest[login_num].id<<endl;
     outputline();
     cout<<"                 1.场地查询"<<endl;
     cout<<"                 2.场地预定"<<endl;
@@ -325,6 +475,8 @@ void main_index()
 void guest_index()
 {
     int operation;
+    cout<<login_num<<endl;
+    cin>>operation;
     switch(operation)
     {
         case 1:guest[login_num].gym_query();break;
@@ -337,7 +489,7 @@ void guest_index()
     }
 }
 
-void guest_index()
+void admin_index()
 {
     int operation;
     switch(operation)
@@ -354,30 +506,20 @@ void guest_index()
 
 int main()
 {
-   
-
-    //Guest guest[10];
-    //guest.login(123.23333);
-    //cout<<guest[0].login(123,233)<<endl;
-    //cout<<guest[1].login(1234,2333)<<endl;
-    //login(guest);
-    //da
-    
     init();
     main_ui();
     main_index();
     
-
     if(mode==1)
     {
         guest_ui();
-
+        guest_index();
 
     }
     else if(mode==2)
     {
         admin_ui();
-
+        admin_index();
     }
     else
         cout<<"[*]进入系统失败!按任意键退出!"<<endl;
