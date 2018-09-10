@@ -11,6 +11,8 @@
 
 using namespace std;
 
+
+/*-----------------------------------------------------【类定义】------------------------------------------------------------------------------*/
 class Order
 {
     public:
@@ -64,6 +66,11 @@ class Guest
             else 
                 return 0;
         }
+        void modify();
+        void gym_order();
+        void gym_query();
+        void rm_order();
+        void query_order();
     protected:
         string password;
 
@@ -78,7 +85,6 @@ class Admin
         string gym_name;
         string email;
         string id;
-        void login();
         void modify();
         void order_mng();
         void gym_mng();
@@ -98,23 +104,67 @@ class Admin
     protected:
         string password;
 };
+/*-----------------------------------------------------【全局变量】------------------------------------------------------------------------------*/
 
-/*-----------------------------------------------------【类定义-全局变量分割线】------------------------------------------------------------------------------*/
-
-int guests=3,admins=3,mode=0;
+int guests=3,admins=3,mode=0,login_num;
 Admin *admin = new Admin[10];
 Guest *guest = new Guest[10];
+Order *order = new Order[10];
+Gym *gym = new Gym[10];
 
-/*-----------------------------------------------------【全局变量-函数定义分割线】----------------------------------------------------------------------------*/
+/*-----------------------------------------------------【成员函数】------------------------------------------------------------------------------*/
+void Guest::modify()
+{
+
+}
+
+void Guest::gym_query()
+{
+
+}
+
+void Guest::gym_order()
+{
+
+}
+
+void Guest::rm_order()
+{
+
+}
+
+void Guest::query_order()
+{
+
+}
+
+///----------------成员函数分割线----------------------//
+
+void Admin::modify()
+{
+
+}
+
+void Admin::order_mng()
+{
+
+}
+
+void Admin::gym_mng()
+{
+
+}
+
+/*-----------------------------------------------------【函数定义】----------------------------------------------------------------------------*/
 
 void init()
 {
-    guest[0].init("123456","ohmygod");
-    guest[1].init("654321","wtfwtf");
-    guest[2].init("888888","aswecan");
-    admin[0].init("123456","ohmygod");
-    admin[1].init("654321","wtfwtf");
-    admin[2].init("888888","aswecan");
+    guest[0].init("luty","123456");
+    guest[1].init("joyce","123456");
+    guest[2].init("kay","123456");
+    admin[0].init("admin","123456");
+    admin[1].init("root","123456");
+    admin[2].init("pi","berrypi");
 }
 
 void login(int operation)
@@ -140,6 +190,7 @@ void login(int operation)
                         {
                             cout<<"登录成功！请按回车进入下一步！"<<endl;
                             mode=1;
+                            login_num=i;
                             getchar();
                             break;
                         }
@@ -181,6 +232,7 @@ void login(int operation)
                         {
                             cout<<"登录成功！请按回车进入下一步！"<<endl;
                             mode=2;
+                            login_num=i;
                             getchar();
                             break;
                         }
@@ -211,7 +263,7 @@ void outputline()
     cout<<"---------------------------------------------"<<endl;
 }
 
-void index()
+void main_ui()
 {
     outputline();
     cout<<"                 欢迎！请先登录！                " <<endl;
@@ -223,23 +275,37 @@ void index()
     cout<<"请选择您的操作："<<endl;
 }
 
-/*------------------------------------------------------------【函数定义-主函数分割线】------------------------------------------------------------------------*/
-
-int main()
+void guest_ui()
 {
-    Guest *guest = new Guest[sizeof(Guest)];
-    Admin *admin = new Admin[sizeof(Admin)];
-    Order *order = new Order[sizeof(Order)];
-    Gym *gym = new Gym[sizeof(gym)];
-    //Guest guest[10];
-    //guest.login(123.23333);
-    //cout<<guest[0].login(123,233)<<endl;
-    //cout<<guest[1].login(1234,2333)<<endl;
-    //login(guest);
-    //da
+    outputline();
+    cout<<"                 欢迎你！顾客"<<guest[login_num].name<<endl;
+    outputline();
+    cout<<"                 1.场地查询"<<endl;
+    cout<<"                 2.场地预定"<<endl;
+    cout<<"                 3.预定取消"<<endl;
+    cout<<"                 4.订单查询"<<endl;
+    cout<<"                 5.个人信息管理"<<endl;
+    cout<<"                 6.注销"<<endl;
+    outputline();
+    cout<<"请选择您的操作："<<endl;
+}
+
+void admin_ui()
+{
+    outputline();
+    cout<<"                 欢迎你！管理员"<<admin[login_num].name<<endl;
+    outputline();
+    cout<<"                 1.预定管理"<<endl;
+    cout<<"                 2.场地管理"<<endl;
+    cout<<"                 3.个人信息管理"<<endl;
+    cout<<"                 4.注销"<<endl;
+    outputline();
+    cout<<"请选择您的操作："<<endl;
+}
+
+void main_index()
+{
     int operation;
-    init();
-    index();
     while(1)
     {
         cin>>operation;
@@ -249,19 +315,64 @@ int main()
             break;
         }
     else if(operation==3)
-        return 0;
+        exit(0);
     else
         cout<<"怎么回事小老弟？再给你一次机会！1或者2！"<<endl;
     }
     system("clear");
+}
 
+void guest_index()
+{
+    int operation;
+    switch(operation)
+    {
+        case 1:guest[login_num].gym_query();break;
+        case 2:guest[login_num].gym_order();break;
+        case 3:guest[login_num].rm_order();break;
+        case 4:guest[login_num].query_order();break;
+        case 5:guest[login_num].modify();break;
+        case 6:return;
+        default:break;
+    }
+}
+
+void admin_index()
+{
+    int operation;
+    switch(operation)
+    {
+        case 1:admin[login_num].order_mng();break;
+        case 2:admin[login_num].gym_mng();break;
+        case 3:admin[login_num].modify();break;
+        case 4:return;
+        default:break;
+    }
+}
+
+/*------------------------------------------------------------【主函数】------------------------------------------------------------------------*/
+
+int main()
+{
+
+    init();
+    main_ui();
+    main_index();
+    
     if(mode==1)
-        cout<<"进入顾客系统！"<<endl;
+    {
+        guest_ui();
+        guest_index();
+
+    }
     else if(mode==2)
-        cout<<"进入管理员系统!"<<endl;
+    {
+        admin_ui();
+        admin_index();
+    }
     else
         cout<<"[*]进入系统失败!按任意键退出!"<<endl;
+
     getchar();
-    
     getchar();
 }
