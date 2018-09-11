@@ -7,8 +7,14 @@
 #include<regex>
 #include<fstream>
 #include "gymsystem.h"
+
 #define ADMIN 1 //定义初始管理员数目
 #define GUEST 1 //定义初始顾客数目
+#define GYM 6 //定义初始场地数目
+#define ORDER 0 //定义初始订单数目
+#define GYM1 "场馆一"
+#define GYM2 "场馆二"
+#define GYM3 "场馆三"
 
 using namespace std;
 
@@ -29,19 +35,45 @@ class Order
 class Gym
 {
     public:
+        int order_sum;
+
+        int time[24];
         float rent;
         string location;
-        int age_limit;
+        int age_limit_1;
+        int age_limit_2;
         string sport_rec;
         string sport_type;
-        string venue;
-        string situation;
+        string belong;
         string id;
+        void init(string x,float irent,string ilocation,int iage_limit_1,int iage_limit_2,string isports_rec,string isports_type,string ibelong)       //初始化函数
+        {
+            id=x;
+            rent=irent;
+            location=ilocation;
+            age_limit_1=iage_limit_1;
+            age_limit_2=iage_limit_2;
+            sport_rec=isports_rec;
+            sport_type=isports_type;
+            belong=ibelong;
+        }
+        void show() //信息展示函数
+        {
+            cout<<"场地id是："<<id<<endl;
+            cout<<"场地租金是："<<rent<<endl;
+            cout<<"场地所属地域是："<<location<<endl;
+            cout<<"场地年龄限制是："<<age_limit_1<<"-"<<age_limit_2<<endl;
+            cout<<"场地推荐运动是："<<sport_rec<<endl;
+            cout<<"场地运动类型是："<<sport_type<<endl;
+            cout<<"所属场馆是："<<belong<<endl;
+        }
 };
 
 class Guest
 {
    public:
+        int cancel;//记录爽约次数
+
         int age;
         long phone;
         float count;
@@ -132,7 +164,7 @@ class Admin
 {
     public:
         long phone;
-        char sex;
+        string sex;
         string name;
         string gym_name;
         string email;
@@ -140,16 +172,25 @@ class Admin
         void modify();
         void order_mng();
         void gym_mng();
-        void init(string x,string y) //初始化函数
+        void init(string x,string y,string isex,string iname,string igym_name,string iemail,long iphone) //初始化函数
         {
             id=x;
             password=y;
+            sex=isex;
+            name=iname;
+            gym_name=igym_name;
+            email=iemail;
+            phone=iphone;
         }
         void show() //信息展示函数
         {
+            cout<<"您的管理ID是："<<id<<endl;
+            cout<<"您的密码是："<<password<<endl;
             cout<<"您的电话号码是："<<phone<<endl;
             cout<<"您的email是："<<email<<endl;
-            cout<<"您的密码是："<<password<<endl;
+            cout<<"您的姓名是："<<name<<endl;
+            cout<<"您的性别是："<<sex<<endl;
+            cout<<"您所管辖的场馆名是：："<<gym_name<<endl;
         }
         void changepwd(string new_pwd)//密码修改函数
         {
@@ -197,13 +238,19 @@ class Admin
 /*-----------------------------------------------------【全局变量】------------------------------------------------------------------------------*/
 
 int mode=0,login_num;
-int guests=GUEST,admins=ADMIN;
+int guests=GUEST,admins=ADMIN,gyms=GYM,orders=ORDER;
 Admin *admin = new Admin[10];
 Guest *guest = new Guest[10];
 Order *order = new Order[10];
 Gym *gym = new Gym[10];
 
+
+
+
 /*-----------------------------------------------------【成员函数】------------------------------------------------------------------------------*/
+
+
+
 
 void Guest::modify()        //顾客个人信息修改功能
 {
@@ -321,24 +368,156 @@ void Guest::modify()        //顾客个人信息修改功能
     }  
 }
 
-void Guest::gym_query()     //顾客场地查询功能
+void Guest::gym_query()     //顾客场地查询功能（完成一般）
 {
+    int flag=0;
+    while(1)
+    {
+        int operation;
+        gym_query_ui();
+        cin>>operation;
+        switch(operation)
+        {
+            case 1:
+            {
+                string j;
+                int empty=0;
+                cout<<"请输入场地编号"<<endl;
+                cin>>j;
+                for(int i=0;i<gyms;i++)
+                {
+                    if(j==gym[i].id)
+                    {
+                        show();
+                        empty=1;
+                    }
+                }
+                query_result(empty);
+                getchar();break;
+            }
+            case 2:
+            {
+                string j;
+                int empty=0;
+                cout<<"请输入场馆名称"<<endl;
+                cin>>j;
+                for(int i=0;i<gyms;i++)
+                {
+                    if(j==gym[i].belong)
+                    {
+                        show();
+                        empty=1;
+                    }
+                }
+                query_result(empty);
+                getchar();break;
+            }
+            case 3:
+            {
+                string j;
+                int empty=0;
+                cout<<"请输入场地类别"<<endl;
+                cin>>j;
+                for(int i=0;i<gyms;i++)
+                {
+                    if(j==gym[i].sport_type)
+                    {
+                        show();
+                        empty=1;
+                    }
+                }
+                query_result(empty);
+                getchar();break;
+            }
+            case 4:
+            {
+                string j;
+                int empty=0;
+                cout<<"请输入场地所属地域"<<endl;
+                cin>>j;
+                for(int i=0;i<gyms;i++)
+                {
+                    if(j==gym[i].location)
+                    {
+                        show();
+                        empty=1;
+                    }
+                }
+                query_result(empty);
+                getchar();break;
+            }
+            case 5:
+            {
+                int empty=0,start,end;
+                cout<<"请输入场地的开始时间："<<endl;
+                cin>>start;
+                cout<<"请输入场地的结束时间:"<<endl;
+                cin>>end;
+                for(int i=0;i<gyms;i++)
+                {
+                    int j=0;
+                    for(j=start;j<=end;j++)
+                        if(gym[i].time[j]==1)
+                            break;
+                    if(j>=end)
+                    {
+                        show();
+                        empty=1;
+                    }
+                }
+                query_result(empty);
+                getchar();break;
+            }
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 0:{flag=1;break;}
+            default:
+        }
+        
+        if(flag==1)
+            break;
+    }
+}
+
+void Guest::gym_order()     //顾客场地预定功能（未完成）
+{
+    int flag=0;
+    while(1)
+    {
+        int operation;
+        system("clear");
+        outputline();
+        if(flag==1)
+            break;
+    }
 
 }
 
-void Guest::gym_order()     //顾客场地预定功能
+void Guest::rm_order()      //顾客取消订单功能（未完成）
 {
+    int flag=0;
+    while(1)
+    {
+        int operation;
+
+        if(flag==1)
+            break;
+    }
 
 }
 
-void Guest::rm_order()      //顾客取消订单功能
+void Guest::query_order()   //顾客查询订单功能（未完成）
 {
+    int flag=0;
+    while(1)
+    {
+        int operation;
 
-}
-
-void Guest::query_order()   //顾客查询订单功能
-{
-
+        if(flag==1)
+            break;
+    }
 }
 
 ///----------------成员函数分割线----------------------//
@@ -450,22 +629,56 @@ void Admin::modify()        //管理员个人信息管理功能
 }
 
 
-void Admin::order_mng()        //管理员订单管理功能
+void Admin::order_mng()        //管理员订单管理功能（未完成）
 {
+    int flag=0;
+    while(1)
+    {
+        int operation;
 
+        if(flag==1)
+            break;
+    }
 }
 
-void Admin::gym_mng()       //管理员场地管理功能
+void Admin::gym_mng()       //管理员场地管理功能（未完成）
 {
+    int flag=0;
+    while(1)
+    {
+        int operation;
 
+        if(flag==1)
+            break;
+    }
 }
+
+
 
 /*-----------------------------------------------------【函数定义】----------------------------------------------------------------------------*/
+
+
+
+
 
 void init()         //原始数据初始化函数
 {
     guest[0].init("luty","123456","骚气卢",18,"男",2000.00,18810727622,"1774243057@qq.com","北京");
-    admin[0].init("admin","123456");
+    admin[0].init("admin","123456","男","管理卢","奥体中心","whatthefuck@gmail.com",4001234567);
+    gym[0].init("恒丰训练中心",100.00,"贵阳",12,30,"足球","足球类型",GYM1);
+    gym[0].init("黑纹篮球",30.00,"贵阳",10,18,"篮球","篮球类型",GYM1);
+    gym[0].init("场地3",40.00,"北京",10,20,"羽毛球","羽毛球类型",GYM2);
+    gym[0].init("场地4",50.00,"北京",12,22,"乒乓球","乒乓球类型",GYM2);
+    gym[0].init("场地5",60.00,"上海",12,24,"溜溜球","溜溜球类型",GYM3);
+    gym[0].init("场地6",70.00,"上海",12,25,"游泳","游泳类型",GYM3);
+}
+
+void query_result(int empty)
+{
+    if(empty==0)
+        cout<<"没有找到符合条目！按回车键退出查询！"<<endl;
+    else
+        cout<<"所有符合条目已列出！按回车键退出查询！"<<endl;
 }
 
 void login(int operation)   //登录功能函数
@@ -559,7 +772,7 @@ void login(int operation)   //登录功能函数
     
 }
 
-void regist_guest()         //顾客注册函数
+void regist_guest()         //顾客注册函数（无报错）
 {
     string pwd;
     system("clear");
@@ -596,22 +809,55 @@ void regist_guest()         //顾客注册函数
 
 }
 
-void regist_admin()         //管理员注册函数
+void regist_admin()         //管理员注册函数(无报错)
 {
+    string pwd;
+    system("clear");
+    outputline();
+    cout<<"                 管理员注册页面"<<endl;
+    outputline();
 
+    cout<<"请输入您的ID:"<<endl;
+    cin>>admin[admins].id;
+    cout<<"请输入您的姓名:"<<endl;
+    cin>>admin[admins].name;
+    cout<<"请输入您的性别:"<<endl;
+    cin>>admin[admins].sex;
+    cout<<"请输入您的电话:"<<endl;
+    cin>>admin[admins].phone;
+
+    cout<<"请输入您的密码:"<<endl;
+    cin>>pwd;
+    admin[admins].changepwd(pwd);
+
+    cout<<"请输入您的邮箱:"<<endl;
+    cin>>admin[admins].email;
+    cout<<"请输入您所管辖的区域:"<<endl;
+    cin>>admin[admins].gym_name;
+    
+    cout<<"注册成功!您的信息为："<<endl;
+    outputline();
+    admin[admins].show();
+    admins++;
 }
 
 void regist_index()         //注册索引
 {
-    int operation;
-    regist_ui();
-    cin>>operation;
-    switch(operation)
+    int flag=0;
+    while(1)
     {
-        case 1:{regist_guest();break;}
-        case 2: 
-        case 3: break;
-        default: break;
+        int operation;
+        regist_ui();
+        cin>>operation;
+        switch(operation)
+        {
+            case 1:regist_guest();break;
+            case 2:regist_admin();break;
+            case 3:flag=1;break;
+            default:
+        }
+        if(flag==1)
+            break;
     }
 }
 
@@ -629,7 +875,7 @@ void main_index()           //主索引
     else if(operation==3)
         regist_index();
     else if (operation==4)
-        exit(0);
+        exit(0);            //windows下使用exit即可
     else
         cout<<"怎么回事小老弟？再给你一次机会！1或者2！"<<endl;
     }
@@ -638,38 +884,47 @@ void main_index()           //主索引
 
 void guest_index()          //顾客功能索引
 {
-    int operation;
-    cout<<login_num<<endl;
-    cin>>operation;
-    switch(operation)
+    int flag=0;
+    while(1)
     {
-        case 1:guest[login_num].gym_query();break;
-        case 2:guest[login_num].gym_order();break;
-        case 3:guest[login_num].rm_order();break;
-        case 4:guest[login_num].query_order();break;
-        case 5:guest[login_num].modify();break;
-        case 6:return;
-        default:break;
+        int operation;
+        guest_ui();
+        cin>>operation;
+        switch(operation)
+        {
+            case 1:guest[login_num].gym_query();break;
+            case 2:guest[login_num].gym_order();break;
+            case 3:guest[login_num].rm_order();break;
+            case 4:guest[login_num].query_order();break;
+            case 5:guest[login_num].modify();break;
+            case 6:flag=1;
+            default:
+        }
+        if(flag==1)
+            break;
     }
 }
 
 void admin_index()          //管理员功能索引
 {
-    int operation;
-    switch(operation)
+    int flag=0;
+    while(1)
     {
-        case 1:admin[login_num].order_mng();break;
-        case 2:admin[login_num].gym_mng();break;
-        case 3:admin[login_num].modify();break;
-        case 4:return;
-        default:break;
+        int operation;
+        admin_ui();
+        cin>>operation;
+        switch(operation)
+        {
+            case 1:admin[login_num].order_mng();break;
+            case 2:admin[login_num].gym_mng();break;
+            case 3:admin[login_num].modify();break;
+            case 4:{flag=1;mode=0;break;}
+            default:
+        }
+        if(flag==1)
+            break;
     }
 }
-
-
-
-
-
 
 
 
@@ -680,23 +935,21 @@ void admin_index()          //管理员功能索引
 int main()
 {
     init();
-    main_ui();
-    main_index();
-    
-    if(mode==1)
+    while(1)
     {
-        guest_ui();
-        guest_index();
-
+        main_ui();
+        main_index();
+        
+        if(mode==1)
+            guest_index();
+        else if(mode==2)   
+            admin_index();
+        else if(mode!=0)
+        {
+            cout<<"[*]进入系统失败!按任意键退出!"<<endl;
+            break;
+        }
     }
-    else if(mode==2)
-    {
-        admin_ui();
-        admin_index();
-    }
-    else
-        cout<<"[*]进入系统失败!按任意键退出!"<<endl;
-
     getchar();
     getchar();
 }

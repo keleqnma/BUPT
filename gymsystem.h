@@ -22,6 +22,7 @@ void regist_ui()
 
 void main_ui()
 {
+    system("clear"); 
     outputline();
     cout<<"                 欢迎！请先登录！                " <<endl;
     outputline();
@@ -35,6 +36,7 @@ void main_ui()
 
 void guest_ui()
 {
+    system("clear"); 
     outputline();
     cout<<"                 欢迎你！顾客!"<<endl;
     outputline();
@@ -50,6 +52,7 @@ void guest_ui()
 
 void admin_ui()
 {
+    system("clear"); 
     outputline();
     cout<<"                 欢迎你！管理员!"<<endl;
     outputline();
@@ -59,4 +62,53 @@ void admin_ui()
     cout<<"                 4.注销"<<endl;
     outputline();
     cout<<"请选择您的操作："<<endl;
+}
+
+void gym_query_ui()
+{
+    system("clear");
+    outputline();
+    cout<<"                 场地查询功能模块"<<endl;
+    outputline();
+    cout<<"                 1.按场地名称查询"<<endl;
+    cout<<"                 2.按场馆名称查询"<<endl;
+    cout<<"                 3.按场地类别"<<endl;
+    cout<<"                 3.所属区域查询"<<endl;
+    cout<<"                 5.按空余场地查询"<<endl;
+    cout<<"                 6.按租金排序所有场地"<<endl;
+    cout<<"                 7.按预定量排序所有场地"<<endl;
+    cout<<"                 8.场地预定"<<endl;
+    cout<<"                 9.热门推荐"<<endl;
+    cout<<"                 0.退出"<<endl;
+    outputline();
+}
+
+void gym_order_ui()
+{
+    system("clear");
+    outputline();
+    cout<<"                 场地预定功能模块"<<endl;
+    outputline();
+
+    outputline();
+}
+
+void rm_order_ui()
+{
+    system("clear");
+    outputline();
+    cout<<"                 预定取消功能模块"<<endl;
+    outputline();
+
+    outputline();
+}
+
+void gym_query_ui()
+{
+    system("clear");
+    outputline();
+    cout<<"                 订单查询功能模块"<<endl;
+    outputline();
+
+    outputline();
 }
