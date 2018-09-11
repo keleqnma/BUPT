@@ -6,9 +6,9 @@
 #include<string>
 #include<regex>
 #include<fstream>
-
-#define START 6
-#define END 22
+#include "gymsystem.h"
+#define ADMIN 1 //定义初始管理员数目
+#define GUEST 1 //定义初始顾客数目
 
 using namespace std;
 
@@ -45,22 +45,34 @@ class Guest
         int age;
         long phone;
         float count;
-        char sex;
+        string sex;
         string name;
         string email;
         string location;
         string id;
-        void init(string x,string y)//初始化函数
+        void init(string x,string y,string iname,int iage,string isex,float icount,long iphone,string iemail,string ilocation)//初始化函数
         {
             id=x;
             password=y;
+            name=iname;
+            age=iage;
+            sex=isex;
+            count=icount;
+            phone=iphone;
+            email=iemail;
+            location=ilocation;
         }
-        void show()
+        void show() //信息展示函数
         {
+            cout<<"您的id是："<<id<<endl;
+            cout<<"您的密码是："<<password<<endl;
+            cout<<"您的姓名是："<<name<<endl;
+            cout<<"您的年龄是："<<age<<endl;
+            cout<<"您的性别是："<<sex<<endl;
+            cout<<"您的账户余额是："<<count<<endl;
             cout<<"您的电话号码是："<<phone<<endl;
             cout<<"您的email是："<<email<<endl;
             cout<<"您的所在地域是："<<location<<endl;
-            cout<<"您的密码是："<<password<<endl;
         }
         void changepwd(string new_pwd)//密码修改函数
         {
@@ -70,14 +82,15 @@ class Guest
         {
             phone=new_phone;
         }
-        void changelocation(string new_location)//地域修改函数
-        {
-            location=new_location;
-        }
         void changemail(string new_email)//email修改函数
         {
             email=new_email;
         }
+        void changelocation(string new_location)//地域修改函数
+        {
+            location=new_location;
+        }
+
         int checkpwd(string pwd)//密码验证函数
         {
             if(pwd==password)
@@ -127,10 +140,48 @@ class Admin
         void modify();
         void order_mng();
         void gym_mng();
-        void init(string x,string y)
+        void init(string x,string y) //初始化函数
         {
             id=x;
             password=y;
+        }
+        void show() //信息展示函数
+        {
+            cout<<"您的电话号码是："<<phone<<endl;
+            cout<<"您的email是："<<email<<endl;
+            cout<<"您的密码是："<<password<<endl;
+        }
+        void changepwd(string new_pwd)//密码修改函数
+        {
+            password = new_pwd;
+        }
+        void changephone(long new_phone)//电话号码修改函数
+        {
+            phone=new_phone;
+        }
+        void changemail(string new_email)//email修改函数
+        {
+            email=new_email;
+        }
+        int checkphone(long phone_num)//电话号码检验函数
+        {
+            if(phone_num>=10000000000 && phone_num<=99999999999)
+                return 1;
+            else
+                return 0;
+        }
+        int checkemail(string email_num)//email检验函数
+        {
+            /*  
+                此处是利用regex库正则匹配E-Mail，
+                其中用户名可以匹配所有数字和大小写字母，但不能匹配特殊符号，
+                邮箱域名可以匹配所有小写字母，
+            */
+            regex pattern("([0-9A-Za-z]+)@([0-9a-z]+\\.[a-z]{2,3}(\\.[a-z]{2})?)");
+            if(regex_match(email_num, pattern))
+                return 1;
+            else
+                return 0; 
         }
         int checkpwd(string pwd)//密码检测函数
         {
@@ -145,7 +196,8 @@ class Admin
 };
 /*-----------------------------------------------------【全局变量】------------------------------------------------------------------------------*/
 
-int guests=3,admins=3,mode=0,login_num;
+int mode=0,login_num;
+int guests=GUEST,admins=ADMIN;
 Admin *admin = new Admin[10];
 Guest *guest = new Guest[10];
 Order *order = new Order[10];
@@ -153,17 +205,12 @@ Gym *gym = new Gym[10];
 
 /*-----------------------------------------------------【成员函数】------------------------------------------------------------------------------*/
 
-void outputline()
+void Guest::modify()        //顾客个人信息修改功能
 {
-    cout<<"---------------------------------------------"<<endl;
-}
-
-void Guest::modify()
-{
-
+    int flag=0;
     while(1)
     {
-        int operation,flag=0;
+        int operation;
         system("clear");
         outputline();
         cout<<"                 个人信息修改模块"<<endl;
@@ -189,12 +236,12 @@ void Guest::modify()
                 {
                     cout<<"[*]请输入新的电话号码："<<endl;
                     cin>>phone;
-                    if(Guest::checkphone(phone))
+                    if(checkphone(phone))
                     {
                         
                         changephone(phone);
                         cout<<"[*]电话号码修改成功，现在您的电话号码是："<<phone<<endl;
-                        getchar();getchar();
+                        getchar();
                         break;
                     }
                     else 
@@ -227,13 +274,14 @@ void Guest::modify()
                         {
                             changepwd(new_pwd);
                             cout<<"密码修改成功，现在您的密码是："<<new_pwd<<endl;
-                            getchar();getchar();
+                            getchar();
                             break;
                         }
                     }
                     else 
                         cout<<"密码不正确请重新输入!"<<endl;
                 }
+                break;
             }
             case 3://修改邮箱
             {
@@ -246,8 +294,8 @@ void Guest::modify()
                     {
                         
                         changemail(email);
-                        cout<<"[*]email修改成功，现在您的电话号码是："<<email<<endl;
-                        getchar();getchar();
+                        cout<<"[*]email修改成功，现在您的email是："<<email<<endl;
+                        getchar();
                         break;
                     }
                     else 
@@ -265,64 +313,162 @@ void Guest::modify()
                 getchar();
                 break;
             }
-            case 5:break;
-            default:{flag=1;break;}
+            case 5:{flag=1;break;}
+            default:break;
         }
-        if(flag=1)
+        if(flag==1)
             break;
     }  
 }
 
-void Guest::gym_query()
+void Guest::gym_query()     //顾客场地查询功能
 {
 
 }
 
-void Guest::gym_order()
+void Guest::gym_order()     //顾客场地预定功能
 {
 
 }
 
-void Guest::rm_order()
+void Guest::rm_order()      //顾客取消订单功能
 {
 
 }
 
-void Guest::query_order()
+void Guest::query_order()   //顾客查询订单功能
 {
 
 }
 
 ///----------------成员函数分割线----------------------//
 
-void Admin::modify()
+
+void Admin::modify()        //管理员个人信息管理功能
+{
+    int flag=0;
+    while(1)
+    {
+        int operation;
+        system("clear");
+        outputline();
+        cout<<"                 个人信息修改模块"<<endl;
+        outputline();
+        cout<<"                 1.修改电话"<<endl;
+        cout<<"                 2.修改密码"<<endl;
+        cout<<"                 3.修改邮箱"<<endl;
+        cout<<"                 4.退出"<<endl;
+        outputline();
+        Admin::show();
+        outputline();
+
+        cout<<"在此处继续选择您的操作："<<endl;
+        //scanf("%d",&operation);
+        cin>>operation;
+        switch(operation)
+        {
+            case 1://修改电话号码
+            {
+                long phone;
+                while(1)
+                {
+                    cout<<"[*]请输入新的电话号码："<<endl;
+                    cin>>phone;
+                    if(Admin::checkphone(phone))
+                    {
+                        
+                        changephone(phone);
+                        cout<<"[*]电话号码修改成功，现在您的电话号码是："<<phone<<endl;
+                        getchar();
+                        break;
+                    }
+                    else 
+                        cout<<"[*]您输入的电话号码格式有误！修改失败！"<<endl;
+                }
+                break;
+            }
+            case 2://修改密码
+            {
+                string old_pwd,new_pwd;
+                char cmd;
+                while(1)
+                {
+                    cout<<"[*1]请先输入旧密码：";
+                    cin>>old_pwd;
+                    if(checkpwd(old_pwd))
+                    {
+                        cout<<endl<<"[*2]密码正确！请输入新密码：";
+                        cin>>new_pwd;
+                        if(new_pwd.length()<6)
+                            cout<<"系统检测到您的密码安全性为：低，请问确定使用新密码吗？（y/n）";
+                        else if(new_pwd.length() >= 6 && new_pwd.length() <= 8)
+                            cout<<"系统检测到您的密码安全性为：中，请问确定使用新密码吗？（y/n）";
+                        else if(new_pwd.length() > 8)
+                            cout<<"系统检测到您的密码安全性为：高，请问确定使用新密码吗？（y/n）";
+                        cin>>cmd;
+                        if(cmd=='n' || cmd=='N')
+                            break;
+                        else 
+                        {
+                            changepwd(new_pwd);
+                            cout<<"密码修改成功，现在您的密码是："<<new_pwd<<endl;
+                            getchar();
+                            break;
+                        }
+                    }
+                    else 
+                        cout<<"密码不正确请重新输入!"<<endl;
+                }
+                break;
+            }
+            case 3://修改邮箱
+            {
+                string email;
+                while(1)
+                {
+                    cout<<"[*]请输入新的email："<<endl;
+                    cin>>email;
+                    if(Admin::checkemail(email))
+                    {
+                        
+                        changemail(email);
+                        cout<<"[*]email修改成功，现在您的email是："<<email<<endl;
+                        getchar();
+                        break;
+                    }
+                    else 
+                        cout<<"[*]您输入的email格式有误！修改失败！"<<endl;
+                }
+                break;
+            }
+            case 4:{flag=1;break;}
+            default:break;
+        }
+        if(flag==1)
+            break;
+    }  
+}
+
+
+void Admin::order_mng()        //管理员订单管理功能
 {
 
 }
 
-void Admin::order_mng()
-{
-
-}
-
-void Admin::gym_mng()
+void Admin::gym_mng()       //管理员场地管理功能
 {
 
 }
 
 /*-----------------------------------------------------【函数定义】----------------------------------------------------------------------------*/
 
-void init()
+void init()         //原始数据初始化函数
 {
-    guest[0].init("luty","123456");
-    guest[1].init("joyce","123456");
-    guest[2].init("kay","123456");
+    guest[0].init("luty","123456","骚气卢",18,"男",2000.00,18810727622,"1774243057@qq.com","北京");
     admin[0].init("admin","123456");
-    admin[1].init("root","123456");
-    admin[2].init("pi","berrypi");
 }
 
-void login(int operation)
+void login(int operation)   //登录功能函数
 {
     int sub_operation;
     string password,id;
@@ -413,47 +559,63 @@ void login(int operation)
     
 }
 
-void main_ui()
+void regist_guest()         //顾客注册函数
 {
+    string pwd;
+    system("clear");
     outputline();
-    cout<<"                 欢迎！请先登录！                " <<endl;
+    cout<<"                 顾客注册页面"<<endl;
     outputline();
-    cout<<"                 1.顾客登录"<<endl;
-    cout<<"                 2.管理员登录"<<endl;
-    cout<<"                 3.退出系统"<<endl;
+
+    cout<<"请输入您的ID:"<<endl;
+    cin>>guest[guests].id;
+    cout<<"请输入您的姓名:"<<endl;
+    cin>>guest[guests].name;
+    cout<<"请输入您的性别:"<<endl;
+    cin>>guest[guests].sex;
+    cout<<"请输入您的年龄:"<<endl;
+    cin>>guest[guests].age;
+    cout<<"请输入您的电话:"<<endl;
+    cin>>guest[guests].phone;
+
+    cout<<"请输入您的密码:"<<endl;
+    cin>>pwd;
+    guest[guests].changepwd(pwd);
+
+    cout<<"请输入您的邮箱:"<<endl;
+    cin>>guest[guests].email;
+    cout<<"请输入您的账户余额:"<<endl;
+    cin>>guest[guests].count;
+    cout<<"请输入您的所属地理区域:"<<endl;
+    cin>>guest[guests].location;
+    
+    cout<<"注册成功!您的信息为："<<endl;
     outputline();
-    cout<<"请选择您的操作："<<endl;
+    guest[guests].show();
+    guests++;
+
 }
 
-void guest_ui()
+void regist_admin()         //管理员注册函数
 {
-    outputline();
-    cout<<"                 欢迎你！顾客"<<guest[login_num].id<<endl;
-    outputline();
-    cout<<"                 1.场地查询"<<endl;
-    cout<<"                 2.场地预定"<<endl;
-    cout<<"                 3.预定取消"<<endl;
-    cout<<"                 4.订单查询"<<endl;
-    cout<<"                 5.个人信息管理"<<endl;
-    cout<<"                 6.注销"<<endl;
-    outputline();
-    cout<<"请选择您的操作："<<endl;
+
 }
 
-void admin_ui()
+void regist_index()         //注册索引
 {
-    outputline();
-    cout<<"                 欢迎你！管理员"<<admin[login_num].name<<endl;
-    outputline();
-    cout<<"                 1.预定管理"<<endl;
-    cout<<"                 2.场地管理"<<endl;
-    cout<<"                 3.个人信息管理"<<endl;
-    cout<<"                 4.注销"<<endl;
-    outputline();
-    cout<<"请选择您的操作："<<endl;
+    int operation;
+    regist_ui();
+    cin>>operation;
+    switch(operation)
+    {
+        case 1:{regist_guest();break;}
+        case 2: 
+        case 3: break;
+        default: break;
+    }
 }
 
-void main_index()
+void main_index()           //主索引
 {
     int operation;
     while(1)
@@ -465,6 +627,8 @@ void main_index()
             break;
         }
     else if(operation==3)
+        regist_index();
+    else if (operation==4)
         exit(0);
     else
         cout<<"怎么回事小老弟？再给你一次机会！1或者2！"<<endl;
@@ -472,7 +636,7 @@ void main_index()
     system("clear");
 }
 
-void guest_index()
+void guest_index()          //顾客功能索引
 {
     int operation;
     cout<<login_num<<endl;
@@ -489,7 +653,7 @@ void guest_index()
     }
 }
 
-void admin_index()
+void admin_index()          //管理员功能索引
 {
     int operation;
     switch(operation)
@@ -501,6 +665,15 @@ void admin_index()
         default:break;
     }
 }
+
+
+
+
+
+
+
+
+
 
 /*------------------------------------------------------------【主函数】------------------------------------------------------------------------*/
 
