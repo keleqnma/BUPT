@@ -244,12 +244,17 @@ Guest *guest = new Guest[10];
 Order *order = new Order[10];
 Gym *gym = new Gym[10];
 
+/*-----------------------------------------------------【特殊功能函数】------------------------------------------------------------------------------*/
 
-
+void query_result(int empty)
+{
+    if(empty==0)
+        cout<<"没有找到符合条目！按回车键退出查询！"<<endl;
+    else
+        cout<<"所有符合条目已列出！按回车键退出查询！"<<endl;
+}
 
 /*-----------------------------------------------------【成员函数】------------------------------------------------------------------------------*/
-
-
 
 
 void Guest::modify()        //顾客个人信息修改功能
@@ -393,7 +398,7 @@ void Guest::gym_query()     //顾客场地查询功能（完成一般）
                     }
                 }
                 query_result(empty);
-                getchar();break;
+                getchar();getchar();break;
             }
             case 2:
             {
@@ -410,7 +415,7 @@ void Guest::gym_query()     //顾客场地查询功能（完成一般）
                     }
                 }
                 query_result(empty);
-                getchar();break;
+                getchar();getchar();break;
             }
             case 3:
             {
@@ -427,7 +432,7 @@ void Guest::gym_query()     //顾客场地查询功能（完成一般）
                     }
                 }
                 query_result(empty);
-                getchar();break;
+                getchar();getchar();break;
             }
             case 4:
             {
@@ -444,7 +449,7 @@ void Guest::gym_query()     //顾客场地查询功能（完成一般）
                     }
                 }
                 query_result(empty);
-                getchar();break;
+                getchar();getchar();break;
             }
             case 5:
             {
@@ -466,14 +471,14 @@ void Guest::gym_query()     //顾客场地查询功能（完成一般）
                     }
                 }
                 query_result(empty);
-                getchar();break;
+                getchar();getchar();break;
             }
             case 6:
             case 7:
             case 8:
             case 9:
             case 0:{flag=1;break;}
-            default:
+            default:break;
         }
         
         if(flag==1)
@@ -487,8 +492,8 @@ void Guest::gym_order()     //顾客场地预定功能（未完成）
     while(1)
     {
         int operation;
-        system("clear");
-        outputline();
+
+
         if(flag==1)
             break;
     }
@@ -673,14 +678,6 @@ void init()         //原始数据初始化函数
     gym[0].init("场地6",70.00,"上海",12,25,"游泳","游泳类型",GYM3);
 }
 
-void query_result(int empty)
-{
-    if(empty==0)
-        cout<<"没有找到符合条目！按回车键退出查询！"<<endl;
-    else
-        cout<<"所有符合条目已列出！按回车键退出查询！"<<endl;
-}
-
 void login(int operation)   //登录功能函数
 {
     int sub_operation;
@@ -854,7 +851,7 @@ void regist_index()         //注册索引
             case 1:regist_guest();break;
             case 2:regist_admin();break;
             case 3:flag=1;break;
-            default:
+            default:break;
         }
         if(flag==1)
             break;
@@ -898,7 +895,7 @@ void guest_index()          //顾客功能索引
             case 4:guest[login_num].query_order();break;
             case 5:guest[login_num].modify();break;
             case 6:flag=1;
-            default:
+            default:break;
         }
         if(flag==1)
             break;
@@ -919,7 +916,7 @@ void admin_index()          //管理员功能索引
             case 2:admin[login_num].gym_mng();break;
             case 3:admin[login_num].modify();break;
             case 4:{flag=1;mode=0;break;}
-            default:
+            default:break;
         }
         if(flag==1)
             break;

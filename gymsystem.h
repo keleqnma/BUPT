@@ -81,6 +81,7 @@ void gym_query_ui()
     cout<<"                 9.热门推荐"<<endl;
     cout<<"                 0.退出"<<endl;
     outputline();
+    cout<<"请选择您的操作："<<endl;
 }
 
 void gym_order_ui()
@@ -88,8 +89,6 @@ void gym_order_ui()
     system("clear");
     outputline();
     cout<<"                 场地预定功能模块"<<endl;
-    outputline();
-
     outputline();
 }
 
@@ -103,7 +102,7 @@ void rm_order_ui()
     outputline();
 }
 
-void gym_query_ui()
+void order_query_ui()
 {
     system("clear");
     outputline();
