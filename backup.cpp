@@ -5,22 +5,18 @@
 #include<iostream>
 #include<string>
 #include<regex>
-#include<fstream>
+#include <algorithm>
 #include "gymsystem.h"
 
 #define ADMIN 1 //定义初始管理员数目
 #define GUEST 1 //定义初始顾客数目
 #define GYM 6 //定义初始场地数目
 #define ORDER 0 //定义初始订单数目
-#define GYM1 2
-#define GYM2 2
-#define GYM3 2
 
 using namespace std;
 
-
 /*-----------------------------------------------------【类定义】------------------------------------------------------------------------------*/
-class Order
+class Order     //订单类
 {
     public:
         string order_number;
@@ -44,7 +40,7 @@ class Order
         }
 };
 
-class Gym
+class Gym       //场地类
 {
     public:
         int order_sum;
@@ -69,6 +65,7 @@ class Gym
             sport_rec=isports_rec;
             sport_type=isports_type;
             belong=ibelong;
+            order_sum=0;
         }
         void show() //信息展示函数
         {
@@ -83,7 +80,7 @@ class Gym
         }
 };
 
-class Guest
+class Guest     //顾客类
 {
    public:
         int cancel;//记录爽约次数
@@ -158,7 +155,7 @@ class Guest
 
 };
 
-class Admin
+class Admin     //管理员类
 {
     public:
         long phone;
@@ -236,7 +233,7 @@ class Admin
 /*-----------------------------------------------------【全局变量】------------------------------------------------------------------------------*/
 
 int mode=0,login_num;
-int guests=GUEST,admins=ADMIN,gyms=GYM,orders=ORDER;
+int guests=GUEST,admins=ADMIN,gyms=GYM,orders=ORDER;    //常量变量化
 Admin *admin = new Admin[10];
 Guest *guest = new Guest[10];
 Order *order = new Order[10];
@@ -244,7 +241,7 @@ Gym *gym = new Gym[10];
 
 /*-----------------------------------------------------【特殊功能函数】------------------------------------------------------------------------------*/
 
-void query_result(int empty)
+void query_result(int empty)        //查询结果反馈函数
 {
     cout<<"-----------------------------------"<<endl;
     if(empty==0)
@@ -513,9 +510,59 @@ void Guest::gym_query()     //顾客场地查询功能（完成一半）
                 getchar();getchar();break;
             }
             case 6:
+            { 
+                int temp,a[gyms]={0};
+                for(int j=0;j<gyms;j++)
+                {
+                    for(int i=0;i<gyms;i++)
+                    {
+                        float min=gym[0].rent;
+                        if(min>=gym[i].rent && a[i]==0)
+                        {
+                            min=gym[i].rent;
+                            temp=i;
+                        }
+                    }
+                    if(a[temp]==0)
+                    {
+                        gym[temp].show();
+                        a[temp]=1;
+                    }
+                }
+                cout<<endl<<"查询完成！按回车键继续..."<<endl;
+                getchar();getchar();
+                break;
+            }
             case 7:
-            case 8:
+            {
+                int temp,a[gyms]={0};
+                for(int j=0;j<gyms;j++)
+                {
+                    for(int i=0;i<gyms;i++)
+                    {
+                        float min=gym[0].order_sum;
+                        if(min>=gym[i].order_sum && a[i]==0)
+                        {
+                            min=gym[i].order_sum;
+                            temp=i;
+                        }
+                    }
+                    if(a[temp]==0)
+                    {
+                        gym[temp].show();
+                        a[temp]=1;
+                    }
+                }
+                cout<<endl<<"查询完成！按回车键继续..."<<endl;
+                getchar();getchar();
+                break;
+            }
+            case 8:gym_order();break;
             case 9:
+            {
+                cout<<"没啥推荐的！你可以问问百度！"<<endl;
+                break;
+            }
             case 0:{flag=1;break;}
             default:break;
         }
@@ -1022,12 +1069,15 @@ void main_index()           //主索引
             login(operation);
             break;
         }
-    else if(operation==3)
-        regist_index();
-    else if (operation==4)
-        exit(0);            //windows下使用exit即可
-    else
-        cout<<"怎么回事小老弟？再给你一次机会！1或者2！"<<endl;
+        else if(operation==3)
+            regist_index();
+        else if (operation==4)
+            exit(0);            //windows下使用exit即可
+        else
+        {
+            cout<<"怎么回事小老弟？再给你一次机会！1或者2！"<<endl;
+            break;
+        }
     }
     system("clear");
 }
@@ -1082,7 +1132,7 @@ void admin_index()          //管理员功能索引
 
 /*------------------------------------------------------------【主函数】------------------------------------------------------------------------*/
 
-int main()
+int main()      //主函数
 {
     init();
     while(1)
