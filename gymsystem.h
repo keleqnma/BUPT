@@ -73,7 +73,7 @@ void gym_query_ui()
     cout<<"                 1.按场地名称查询"<<endl;
     cout<<"                 2.按场馆名称查询"<<endl;
     cout<<"                 3.按场地类别"<<endl;
-    cout<<"                 3.所属区域查询"<<endl;
+    cout<<"                 4.所属区域查询"<<endl;
     cout<<"                 5.按空余场地查询"<<endl;
     cout<<"                 6.按租金排序所有场地"<<endl;
     cout<<"                 7.按预定量排序所有场地"<<endl;
@@ -99,7 +99,6 @@ void rm_order_ui()
     cout<<"                 预定取消功能模块"<<endl;
     outputline();
 
-    outputline();
 }
 
 void order_query_ui()
@@ -109,5 +108,4 @@ void order_query_ui()
     cout<<"                 订单查询功能模块"<<endl;
     outputline();
 
-    outputline();
 }

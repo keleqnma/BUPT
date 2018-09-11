@@ -12,9 +12,9 @@
 #define GUEST 1 //定义初始顾客数目
 #define GYM 6 //定义初始场地数目
 #define ORDER 0 //定义初始订单数目
-#define GYM1 "场馆一"
-#define GYM2 "场馆二"
-#define GYM3 "场馆三"
+#define GYM1 2
+#define GYM2 2
+#define GYM3 2
 
 using namespace std;
 
@@ -27,9 +27,21 @@ class Order
         string order_date;
         string id;
         string date;
-        string start;
-        string end;
+        int start;
+        int end;
         string check;
+        string belong;      //从属于哪个顾客的订单
+        void show()
+        {
+            cout<<"---------------------"<<endl;
+            cout<<"订单编号："<<order_number<<endl;
+            cout<<"下单日期："<<order_date<<endl;
+            cout<<"预定场地编号："<<id<<endl;
+            cout<<"预约日期："<<date<<endl;
+            cout<<"开始时间："<<start<<endl;
+            cout<<"结束时间："<<end<<endl;
+            cout<<"订单所有者："<<belong<<endl;
+        }
 };
 
 class Gym
@@ -46,6 +58,7 @@ class Gym
         string sport_type;
         string belong;
         string id;
+        string situation;
         void init(string x,float irent,string ilocation,int iage_limit_1,int iage_limit_2,string isports_rec,string isports_type,string ibelong)       //初始化函数
         {
             id=x;
@@ -59,6 +72,7 @@ class Gym
         }
         void show() //信息展示函数
         {
+            cout<<"------------------"<<endl;
             cout<<"场地id是："<<id<<endl;
             cout<<"场地租金是："<<rent<<endl;
             cout<<"场地所属地域是："<<location<<endl;
@@ -73,6 +87,7 @@ class Guest
 {
    public:
         int cancel;//记录爽约次数
+        int chance;//记录预约上限
 
         int age;
         long phone;
@@ -93,6 +108,8 @@ class Guest
             phone=iphone;
             email=iemail;
             location=ilocation;
+            cancel=0;
+            chance=3;
         }
         void show() //信息展示函数
         {
@@ -130,26 +147,7 @@ class Guest
             else 
                 return 0;
         }
-        int checkphone(long phone_num)//电话号码检验函数
-        {
-            if(phone_num>=10000000000 && phone_num<=99999999999)
-                return 1;
-            else
-                return 0;
-        }
-        int checkemail(string email_num)//email检验函数
-        {
-            /*  
-                此处是利用regex库正则匹配E-Mail，
-                其中用户名可以匹配所有数字和大小写字母，但不能匹配特殊符号，
-                邮箱域名可以匹配所有小写字母，
-            */
-            regex pattern("([0-9A-Za-z]+)@([0-9a-z]+\\.[a-z]{2,3}(\\.[a-z]{2})?)");
-            if(regex_match(email_num, pattern))
-                return 1;
-            else
-                return 0; 
-        }
+        
         void modify();
         void gym_order();
         void gym_query();
@@ -248,10 +246,51 @@ Gym *gym = new Gym[10];
 
 void query_result(int empty)
 {
+    cout<<"-----------------------------------"<<endl;
     if(empty==0)
         cout<<"没有找到符合条目！按回车键退出查询！"<<endl;
     else
         cout<<"所有符合条目已列出！按回车键退出查询！"<<endl;
+}
+
+int checkphone(long phone_num)      //电话号码检验函数
+{
+    if(phone_num>=10000000000 && phone_num<=99999999999)
+        return 1;
+    else
+        return 0;
+}
+
+int checkemail(string email_num)       //email检验函数
+{
+    /*  
+        此处是利用regex库正则匹配E-Mail，
+        其中用户名可以匹配所有数字和大小写字母，但不能匹配特殊符号，
+        邮箱域名可以匹配所有小写字母，
+    */
+    regex pattern("([0-9A-Za-z]+)@([0-9a-z]+\\.[a-z]{2,3}(\\.[a-z]{2})?)");
+    if(regex_match(email_num, pattern))
+        return 1;
+    else
+        return 0; 
+}
+
+int checktime(string times)     //预定日期格式检测函数
+{
+    regex pattern("([0-9]{4}):([0-9]{2}):([0-9]{2}):([0-9]{2}):([0-9]{2})$");
+    if(regex_match(times, pattern))
+        return 1;
+    else
+        return 0;
+}
+
+int checkdate(string date)      //租借日期格式检测函数
+{
+    regex pattern("([0-9]{4}):([0-9]{2}):([0-9]{2})$");
+    if(regex_match(date, pattern))
+        return 1;
+    else
+        return 0;
 }
 
 /*-----------------------------------------------------【成员函数】------------------------------------------------------------------------------*/
@@ -342,7 +381,7 @@ void Guest::modify()        //顾客个人信息修改功能
                 {
                     cout<<"[*]请输入新的email："<<endl;
                     cin>>email;
-                    if(Guest::checkemail(email))
+                    if(checkemail(email))
                     {
                         
                         changemail(email);
@@ -373,7 +412,7 @@ void Guest::modify()        //顾客个人信息修改功能
     }  
 }
 
-void Guest::gym_query()     //顾客场地查询功能（完成一般）
+void Guest::gym_query()     //顾客场地查询功能（完成一半）
 {
     int flag=0;
     while(1)
@@ -393,7 +432,7 @@ void Guest::gym_query()     //顾客场地查询功能（完成一般）
                 {
                     if(j==gym[i].id)
                     {
-                        show();
+                        gym[i].show();
                         empty=1;
                     }
                 }
@@ -410,7 +449,7 @@ void Guest::gym_query()     //顾客场地查询功能（完成一般）
                 {
                     if(j==gym[i].belong)
                     {
-                        show();
+                        gym[i].show();
                         empty=1;
                     }
                 }
@@ -427,7 +466,7 @@ void Guest::gym_query()     //顾客场地查询功能（完成一般）
                 {
                     if(j==gym[i].sport_type)
                     {
-                        show();
+                        gym[i].show();
                         empty=1;
                     }
                 }
@@ -444,14 +483,14 @@ void Guest::gym_query()     //顾客场地查询功能（完成一般）
                 {
                     if(j==gym[i].location)
                     {
-                        show();
+                        gym[i].show();
                         empty=1;
                     }
                 }
                 query_result(empty);
                 getchar();getchar();break;
             }
-            case 5:
+            case 5:         //此处有问题！什么叫空余场地？需要指定日期吗？还是说当前时间？
             {
                 int empty=0,start,end;
                 cout<<"请输入场地的开始时间："<<endl;
@@ -466,7 +505,7 @@ void Guest::gym_query()     //顾客场地查询功能（完成一般）
                             break;
                     if(j>=end)
                     {
-                        show();
+                        gym[i].show();
                         empty=1;
                     }
                 }
@@ -486,43 +525,157 @@ void Guest::gym_query()     //顾客场地查询功能（完成一般）
     }
 }
 
-void Guest::gym_order()     //顾客场地预定功能（未完成）
+void Guest::gym_order()     //顾客场地预定功能（基本完成）
 {
-    int flag=0;
-    while(1)
+    while(1)        
     {
-        int operation;
+        int start,end,num,n,flag=0;
+        char cmd;
+        string id,date,code,times,changguan;
+        gym_order_ui();
+        if(chance==0)
+        {
+            cout<<"您本次预定次数已打上限三次！按回车键退出！";
+            getchar();getchar();
+            break;
+        }
 
+        
+        cout<<"输入你想预定的场馆:"<<endl;
+        cin>>changguan;
+        if(changguan!="场馆一" && changguan!="场馆二" && changguan!="场馆三")
+        {
+            cout<<"场馆不存在"<<endl;
+            cout<<"按回车键退出...";
+            getchar();
+            break;
+        }
 
+        cout<<"输入你想要预定的场地编号:"<<endl;
+        cin>>id;
+
+        for(int i=0;i<gyms;i++)
+        {
+            if(id==gym[i].id)
+            {
+                if(gym[i].belong==changguan)   
+                    num=i;
+                else
+                {
+                    cout<<"这个场地不属于"<<changguan<<end;
+                    cout<<"按回车键退出...";
+                    getchar();
+                    flag=1;
+                }
+            }
+        }
         if(flag==1)
             break;
-    }
+        
+        if(count-gym[num].rent<0)
+        {
+            cout<<"您的余额不足支付该场地租金！请换场地或充值！"<<endl;
+            cout<<"按回车键退出...";
+            getchar();
+            break;
+        }
+        if(age > gym[num].age_limit_2 || age < gym[num].age_limit_1)
+        {
+            cout<<"您的年龄不适合该项运动！请换场地或再等几年！"<<endl;
+            cout<<"按回车键退出...";
+            getchar();
+            break;
+        }
 
+        cout<<"输入你想要租借日期(格式：yyyy:mm:dd）："<<endl;
+        cin>>date;
+        cout<<"输入你想要预定的开始时间(6-22)："<<endl;
+        cin>>start;
+        cout<<"输入你想要预定的结束时间(6-22)："<<endl;
+        cin>>end;
+        for(int j=start;j<=end;j++)
+        {
+            if(gym[num].time[j]==1)
+            {   
+                cout<<"你选择的场地该时间段没有空余！预定失败！"<<endl;;
+                break;
+            }
+        }
+        cout<<"输入下单时间(格式：yyyy:mm:dd:hh:mm）："<<endl;
+        cin>>times;
+
+
+        
+        //此处开始生成订单
+        order[orders].order_number=id+times;
+        order[orders].order_date=date;
+        order[orders].id=id;
+        order[orders].date=date;
+        order[orders].start=start;
+        order[orders].end=end;
+        order[orders].belong=name;
+        cout<<"订单生成完毕，具体信息如下："<<endl;
+        order[orders].show();
+        orders++;   //订单总数+1
+        chance--;   //该用户租借机会-1
+        count-=gym[num].rent;
+
+        cout<<"[*]你想要继续预定吗？(y/n)"<<endl;
+        cin>>cmd;
+        if(cmd=='n' || cmd=='N')
+            break;
+    }
 }
 
-void Guest::rm_order()      //顾客取消订单功能（未完成）
+void Guest::rm_order()      //顾客取消订单功能
 {
-    int flag=0;
+    char cmd;
     while(1)
     {
-        int operation;
+        int flag=0;
+        string rm_id,result;
+        rm_order_ui();
+        /*
+        cout<<"您拥有的订单如下："<<endl;
+        for(int i=0;i<orders;i++)
+            if(order[i].belong==id)
+                order[i].show();
+        */
+        cout<<"在此键入您想删除的订单编号："<<endl;
+        cin>>rm_id;
+        for(int i=0;i<orders;i++)
+        {
+            /*cout<<order[i].belong<<endl;
+            cout<<name<<endl;
+            cout<<rm_id<<endl;
+            cout<<order[i].id<<endl;*/
 
-        if(flag==1)
+            if(order[i].belong==name && rm_id==order[i].order_number)
+            {
+                order[i].belong=="trush";   //先假装删除一下
+                flag=1;
+                cout<<endl<<"[*]订单删除成功！按回车继续！"<<endl;
+                getchar();
+            }
+        }
+        if(flag==0)
+            cout<<"删除失败！没有找到此订单或此订单不属于您！"<<endl;
+        cout<<endl<<"[*]你想要继续删除订单吗吗？(y/n)"<<endl;
+        cin>>cmd;
+        if(cmd=='n' || cmd=='N')
             break;
     }
-
 }
 
-void Guest::query_order()   //顾客查询订单功能（未完成）
+void Guest::query_order()   //顾客查询订单功能
 {
-    int flag=0;
-    while(1)
-    {
-        int operation;
-
-        if(flag==1)
-            break;
-    }
+    order_query_ui();
+    cout<<"您拥有的订单如下："<<endl;;
+        for(int i=0;i<orders;i++)
+            if(order[i].belong==name)
+                order[i].show();
+    cout<<"查询完毕！若无显示代表没有订单！按回车键返回..."<<endl;
+    getchar();getchar();
 }
 
 ///----------------成员函数分割线----------------------//
@@ -670,12 +823,12 @@ void init()         //原始数据初始化函数
 {
     guest[0].init("luty","123456","骚气卢",18,"男",2000.00,18810727622,"1774243057@qq.com","北京");
     admin[0].init("admin","123456","男","管理卢","奥体中心","whatthefuck@gmail.com",4001234567);
-    gym[0].init("恒丰训练中心",100.00,"贵阳",12,30,"足球","足球类型",GYM1);
-    gym[0].init("黑纹篮球",30.00,"贵阳",10,18,"篮球","篮球类型",GYM1);
-    gym[0].init("场地3",40.00,"北京",10,20,"羽毛球","羽毛球类型",GYM2);
-    gym[0].init("场地4",50.00,"北京",12,22,"乒乓球","乒乓球类型",GYM2);
-    gym[0].init("场地5",60.00,"上海",12,24,"溜溜球","溜溜球类型",GYM3);
-    gym[0].init("场地6",70.00,"上海",12,25,"游泳","游泳类型",GYM3);
+    gym[0].init("test123",100.00,"贵阳",12,30,"足球","足球类型","场馆一");
+    gym[1].init("黑纹篮球",30.00,"贵阳",10,18,"篮球","篮球类型","场馆一");
+    gym[2].init("场地3",40.00,"北京",10,20,"羽毛球","羽毛球类型","场馆二");
+    gym[3].init("场地4",50.00,"北京",12,22,"乒乓球","乒乓球类型","场馆二");
+    gym[4].init("场地5",60.00,"上海",12,24,"溜溜球","溜溜球类型","场馆三");
+    gym[5].init("场地6",70.00,"上海",12,25,"游泳","游泳类型","场馆三");
 }
 
 void login(int operation)   //登录功能函数
@@ -894,7 +1047,7 @@ void guest_index()          //顾客功能索引
             case 3:guest[login_num].rm_order();break;
             case 4:guest[login_num].query_order();break;
             case 5:guest[login_num].modify();break;
-            case 6:flag=1;
+            case 6:flag=1;break;
             default:break;
         }
         if(flag==1)
