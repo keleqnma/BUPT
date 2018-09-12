@@ -5,7 +5,6 @@
 #include<iostream>
 #include<string>
 #include<regex>
-#include <fstream>
 #include <algorithm>
 #include "gymsystem.h"
 
@@ -235,6 +234,7 @@ class Admin     //管理员类
 
 int mode=0,login_num;
 int guests=GUEST,admins=ADMIN,gyms=GYM,orders=ORDER;    //常量变量化
+FILE *fin,*fout;
 Admin *admin = new Admin[10];
 Guest *guest = new Guest[10];
 Order *order = new Order[10];
@@ -920,14 +920,32 @@ void Admin::gym_mng()       //管理员场地管理功能
 
 void init()         //原始数据初始化函数
 {
+    fin=fopen("guests.txt","r");
+    string x,y,iname,iemail,isex,ilocation;
+    int iage;
+    float icount;
+    long iphone;
+    //fscanf("%s%s%s%d%s%f%ld%s%s",&x,&y,&iname,&iage,&isex,&icount,&iphone,&iemail,&ilocation);
     guest[0].init("luty","123456","骚气卢",18,"男",2000.00,18810727622,"1774243057@qq.com","北京");
+
+}
+void admin_init()
+{
     admin[0].init("admin","123456","男","管理卢","奥体中心","whatthefuck@gmail.com",4001234567);
+}
+void order_init()
+{
+
+}
+void gym_init()
+{
     gym[0].init("test123",100.00,"贵阳",12,30,"足球","足球类型","场馆一");
     gym[1].init("黑纹篮球",30.00,"贵阳",10,18,"篮球","篮球类型","场馆一");
     gym[2].init("场地3",40.00,"北京",10,20,"羽毛球","羽毛球类型","场馆二");
     gym[3].init("场地4",50.00,"北京",12,22,"乒乓球","乒乓球类型","场馆二");
     gym[4].init("场地5",60.00,"上海",12,24,"溜溜球","溜溜球类型","场馆三");
     gym[5].init("场地6",70.00,"上海",12,25,"游泳","游泳类型","场馆三");
+
 }
 
 void login(int operation)   //登录功能函数

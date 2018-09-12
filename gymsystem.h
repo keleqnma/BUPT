@@ -121,7 +121,7 @@ void order_mng_ui()
     cout<<"                 4.统计不同场地年龄层次分布"<<endl;
     cout<<"                 5.按营业额排序场地"<<endl;
     cout<<"                 6.统计针对男士/女士最受欢迎运动"<<endl;
-    cout<<"                 7.按时间段所有场地"<<endl;
+    cout<<"                 7.按时间段排序所有场地"<<endl;
     cout<<"                 8.退出"<<endl;
     outputline();
     cout<<"请选择您的操作："<<endl;
