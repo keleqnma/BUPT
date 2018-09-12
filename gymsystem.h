@@ -107,5 +107,31 @@ void order_query_ui()
     outputline();
     cout<<"                 订单查询功能模块"<<endl;
     outputline();
+}
 
+void order_mng_ui()
+{
+    system("clear");
+    outputline();
+    cout<<"                 管理员订单管理模块"<<endl;
+    outputline();
+    cout<<"                 1.查看场馆订单"<<endl;
+    cout<<"                 2.查看场馆订单并按预定量排序"<<endl;
+    cout<<"                 3.统计场馆营业额"<<endl;
+    cout<<"                 4.统计不同场地年龄层次分布"<<endl;
+    cout<<"                 5.按营业额排序场地"<<endl;
+    cout<<"                 6.统计针对男士/女士最受欢迎运动"<<endl;
+    cout<<"                 7.按时间段所有场地"<<endl;
+    cout<<"                 8.退出"<<endl;
+    outputline();
+    cout<<"请选择您的操作："<<endl;
+}
+
+void gym_mng_ui()
+{
+    system("clear");
+    outputline();
+    cout<<"                 管理员场地管理模块"<<endl;
+    outputline();
+    
 }

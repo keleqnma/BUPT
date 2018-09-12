@@ -5,6 +5,7 @@
 #include<iostream>
 #include<string>
 #include<regex>
+#include <fstream>
 #include <algorithm>
 #include "gymsystem.h"
 
@@ -409,7 +410,7 @@ void Guest::modify()        //顾客个人信息修改功能
     }  
 }
 
-void Guest::gym_query()     //顾客场地查询功能（完成一半）
+void Guest::gym_query()     //顾客场地查询功能（差推荐）
 {
     int flag=0;
     while(1)
@@ -572,7 +573,7 @@ void Guest::gym_query()     //顾客场地查询功能（完成一半）
     }
 }
 
-void Guest::gym_order()     //顾客场地预定功能（基本完成）
+void Guest::gym_order()     //顾客场地预定功能（无报错功能）
 {
     while(1)        
     {
@@ -674,7 +675,7 @@ void Guest::gym_order()     //顾客场地预定功能（基本完成）
     }
 }
 
-void Guest::rm_order()      //顾客取消订单功能
+void Guest::rm_order()      //顾客取消订单功能（差释放内存）
 {
     char cmd;
     while(1)
@@ -840,21 +841,72 @@ void Admin::order_mng()        //管理员订单管理功能（未完成）
     while(1)
     {
         int operation;
+        order_mng_ui();
+        switch(operation)
+        {
+            case 1:
+            {
+                string j;
+                int empty=0;
+                cout<<"请输入场地编号"<<endl;
+                cin>>j;
+                for(int i=0;i<gyms;i++)
+                {
+                    if(j==gym[i].id)
+                    {
+                        gym[i].show();
+                        empty=1;
+                    }
+                }
+                query_result(empty);
+                getchar();getchar();break;
+            }
+            case 2:
+            {
 
+            }
+        }
         if(flag==1)
             break;
     }
 }
 
-void Admin::gym_mng()       //管理员场地管理功能（未完成）
+void Admin::gym_mng()       //管理员场地管理功能
 {
-    int flag=0;
     while(1)
     {
-        int operation;
-
-        if(flag==1)
+        char cmd;
+        gym_mng_ui();
+        for(int i=0;i<gyms;i++)
+            gym[i].show();
+        cout<<endl<<"所有场地信息显示完毕!是否选择添加一个新的场地？(y/n)："<<endl;
+        cout<<"[*]注：选择不添加场地将会自动退出该模块！"<<endl;
+        cin>>cmd;
+        if(cmd=='n' || cmd=='N')
             break;
+        
+        cout<<"输入新场地的编号："<<endl;
+        cin>>gym[gyms].id;
+        cout<<"输入新场地的所属场馆："<<endl;
+        cin>>gym[gyms].belong;
+        cout<<"输入新场地的租金："<<endl;
+        cin>>gym[gyms].rent;
+        cout<<"输入新场地的所属区域"<<endl;
+        cin>>gym[gyms].location;
+        cout<<"输入新场地的年龄下限："<<endl;
+        cin>>gym[gyms].age_limit_1;
+        cout<<"输入新场地的年龄上限："<<endl;
+        cin>>gym[gyms].age_limit_2;
+        cout<<"输入新场地的推荐运动："<<endl;
+        cin>>gym[gyms].sport_rec;
+        cout<<"输入新场地适合的运动类型："<<endl;
+        cin>>gym[gyms].sport_type;
+
+        cout<<"--------------------------------"<<endl;
+        cout<<"新场馆添加成功！信息如下："<<endl;
+        gym[gyms].show();
+        gyms++;
+        cout<<"按回车继续..."<<endl;
     }
 }
 
