@@ -25,16 +25,20 @@ Gym *gym = new Gym[10];
 
 /*-----------------------------------------------------【特殊功能函数】------------------------------------------------------------------------------*/
 
-/*string timetostr(time_t time)
+string timetostr(int time)          //时间戳转字符串函数
 {
-    struct tm *ttime; 
-    string str;
-    ttime = localtime(&time);
-    strftime(str,64,"%Y:%m:%d:%H:%M",ttime); 
-    return str;
-}*/
+	time_t tick = (time_t)time;
+	struct tm tm; 
+	char s[100];
+	string str;
+    struct tm tm; 
+	tm = *localtime(&tick);
+	strftime(s, sizeof(s), "%Y:%m:%d:%H:%M", &tm);
+	str=s;
+	return str;
+}
 
-time_t nowtime()                    //返回当前时间
+time_t nowtime()                    //返回当前时间戳
 {
     time_t now = time(0);
     return now;
