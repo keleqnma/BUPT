@@ -2,6 +2,16 @@
 
 using namespace std;
 
+typedef struct times
+{
+	int Year;
+	int Mon;
+	int Day;
+	int Hour;
+	int Min;
+	int Second;
+}Times;
+
 /*-----------------------------------------------------【类定义】------------------------------------------------------------------------------*/
 class Order     //订单类
 {
@@ -14,6 +24,7 @@ class Order     //订单类
         string sports;          //该订单对应的运动类型
         int start;
         int end;
+        int age;
         string check;
         string belong;      //从属于哪个顾客的订单
         void show()
