@@ -4,11 +4,11 @@
 #include <ctime>
 #include "gymsystem.h"
 
-#define ADMIN 1 //定义初始管理员数目
-#define GUEST 1 //定义初始顾客数目
-#define GYM 6 //定义初始场地数目
-#define ORDER 0 //定义初始订单数目
-
+#define ADMIN 1     //定义初始管理员数目
+#define GUEST 1     //定义初始顾客数目
+#define GYM 6       //定义初始场地数目
+#define ORDER 0     //定义初始订单数目
+#define SPORTS 3    //定义初始运动类型数目
 using namespace std;
 
 
@@ -16,25 +16,41 @@ using namespace std;
 /*-----------------------------------------------------【全局变量】------------------------------------------------------------------------------*/
 
 int mode=0,login_num;
-int guests=GUEST,admins=ADMIN,gyms=GYM,orders=ORDER;    //常量变量化
+int guests=GUEST,admins=ADMIN,gyms=GYM,orders=ORDER,sportstypes=SPORTS;    //常量变量化
 FILE *fin,*fout;
 Admin *admin = new Admin[10];
 Guest *guest = new Guest[10];
 Order *order = new Order[10];
 Gym *gym = new Gym[10];
+Sportstype *sportstype = new Sportstype[10];
 
 /*-----------------------------------------------------【特殊功能函数】------------------------------------------------------------------------------*/
 
-/*string timetostr(time_t time)
-{
-    struct tm *ttime; 
-    string str;
-    ttime = localtime(&time);
-    strftime(str,64,"%Y:%m:%d:%H:%M",ttime); 
-    return str;
-}*/
 
-time_t nowtime()                    //返回当前时间
+int strtoint(string str)       
+{
+
+    int a,b;
+	char string[6];
+	str.copy(string,5,0);
+
+	a=(int)(string[0]-48);
+	b=(int)(string[1]-48);
+	return a*10+b;
+}
+string timetostr(int time)          //时间戳转字符串函数
+{
+	time_t tick = (time_t)time;
+	struct tm tm; 
+	char s[100];
+	string str; 
+	tm = *localtime(&tick);
+	strftime(s, sizeof(s), "%Y:%m:%d:%H:%M", &tm);
+	str=s;
+	return str;
+}
+
+time_t nowtime()                    //返回当前时间戳
 {
     time_t now = time(0);
     return now;
@@ -44,9 +60,9 @@ time_t strtotime(string timestring)  //字符串转时间戳函数
 {  
     struct tm tm;  
     memset(&tm, 0, sizeof(tm));   
-    sscanf(timestring.c_str(), "%d:%d:%d:%d:%d",   
-           &tm.tm_year, &tm.tm_mon, &tm.tm_mday,  
-           &tm.tm_hour, &tm.tm_min);  
+    sscanf(timestring.c_str(), "%d:%d:%d",   
+           &tm.tm_year, &tm.tm_mon, &tm.tm_mday  
+           );  
     tm.tm_year -= 1900;  
     tm.tm_mon--;  
     return mktime(&tm);  
@@ -85,7 +101,7 @@ int checkemail(string email_num)       //email格式检验函数
 
 int checktime(string times)     //预定日期格式检测函数
 {
-    regex pattern("([0-9]{4}):([0-9]{2}):([0-9]{2}):([0-9]{2}):([0-9]{2})$");
+    regex pattern("([0-9]{2}):([0-9]{2})$");
     if(regex_match(times, pattern))
         return 1;
     else
@@ -122,7 +138,7 @@ int checkbetween(string id)      //间隔时长检测函数
 /*-----------------------------------------------------【成员函数】------------------------------------------------------------------------------*/
 
 
-void Guest::modify()        //顾客个人信息修改功能（有报错）
+void Guest::modify()        //顾客个人信息修改功能
 {
     int flag=0;
     while(1)
@@ -238,7 +254,7 @@ void Guest::modify()        //顾客个人信息修改功能（有报错）
     }  
 }
 
-void Guest::gym_query()     //顾客场地查询功能（差推荐）
+void Guest::gym_query()     //顾客场地查询功能（排序有BUG）
 {
     int flag=0;
     while(1)
@@ -316,36 +332,83 @@ void Guest::gym_query()     //顾客场地查询功能（差推荐）
                 query_result(empty);
                 getchar();getchar();break;
             }
-            case 5:         //此处有问题！什么叫空余场地？需要指定日期吗？还是说当前时间？
+            case 5: 
             {
                 int empty=0,start,end;
-                cout<<"请输入场地的开始时间："<<endl;
-                cin>>start;
-                cout<<"请输入场地的结束时间:"<<endl;
-                cin>>end;
+                string date,startt,endd;
+                while(1)
+                {
+                    cout<<"输入想要查询的日期(格式：yyyy:mm:dd）："<<endl;
+                    cin>>date;
+                    if(checkdate(date))
+                        break;
+                    else 
+                        cout<<"您的输入不符合格式！请重新输入！"<<endl; 
+                }
+                
+                while(1)
+                {
+                    cout<<"输入开始时间(06:00-22:00)："<<endl;
+                    cin>>startt;
+                    start=strtoint(startt);
+                    if(checktime(startt)==1 && (start>=6 && start<=22))
+                        break;
+                    else 
+                        cout<<"您的输入不符合格式！请重新输入！"<<endl;
+                }
+
+                while(1)
+                {
+                    cout<<"输入结束时间(06:00-22:00)："<<endl;
+                    cin>>endd;
+                    end=strtoint(endd);
+                    if(checktime(endd)==1 && (end>=6 && end<=22))
+                        break;
+                    else 
+                        cout<<"您的输入不符合格式！请重新输入！"<<endl;
+                }
+
+
+
                 for(int i=0;i<gyms;i++)
                 {
-                    int j=0;
-                    for(j=start;j<=end;j++)
-                        if(gym[i].time[j]==1)
-                            break;
-                    if(j>=end)
+                    int flag=0;
+                    if(gym[i].order_sum>0)
+                    {
+                        for(int j=0;j<orders;j++)
+                        {
+                            if(order[j].id==id && order[j].date==date)
+                            {
+                                for(int k=start;k<=end;k++)
+                                {
+                                    if(gym[i].time[k]==1)
+                                    {
+                                        flag=1;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(flag==0)
                     {
                         gym[i].show();
                         empty=1;
                     }
                 }
+
                 query_result(empty);
                 getchar();getchar();break;
             }
             case 6:
             { 
-                int temp,a[gyms]={0};
+                int temp=0,a[gyms]={0};
                 for(int j=0;j<gyms;j++)
                 {
+                    float min=gym[0].rent;
                     for(int i=0;i<gyms;i++)
                     {
-                        float min=gym[0].rent;
+                        
                         if(min>=gym[i].rent && a[i]==0)
                         {
                             min=gym[i].rent;
@@ -367,9 +430,9 @@ void Guest::gym_query()     //顾客场地查询功能（差推荐）
                 int temp,a[gyms]={0};
                 for(int j=0;j<gyms;j++)
                 {
+                    float min=gym[0].order_sum;
                     for(int i=0;i<gyms;i++)
                     {
-                        float min=gym[0].order_sum;
                         if(min>=gym[i].order_sum && a[i]==0)
                         {
                             min=gym[i].order_sum;
@@ -386,10 +449,24 @@ void Guest::gym_query()     //顾客场地查询功能（差推荐）
                 getchar();getchar();
                 break;
             }
-            case 8:gym_order();break;
-            case 9:
+            case 8:gym_order();break;               //查询后可以预定
+            case 9:                                 //热门推荐(单纯按照预定量推荐)
             {
-                cout<<"没啥推荐的！你可以问问百度！"<<endl;
+                cout<<endl<<"我们将根据预定场地数目为您推荐！"<<endl;
+                string rec="test123";
+                int max=gym[0].order_sum,temp;
+                for(int i=0;i<gyms;i++)
+                {
+                    if(gym[i].order_sum>max)
+                    {
+                        max=gym[i].order_sum;
+                        rec=gym[i].id;
+                        temp=i;
+                    }
+                }
+                cout<<"推荐场地："<<rec<<endl;
+                cout<<"预定数目："<<gym[temp].order_sum;
+                cout<<endl<<"推荐完成！按回车键继续..."<<endl;
                 getchar();getchar();
                 break;
             }
@@ -402,13 +479,14 @@ void Guest::gym_query()     //顾客场地查询功能（差推荐）
     }
 }
 
-void Guest::gym_order()     //顾客场地预定功能（有报错）
+void Guest::gym_order()     //顾客场地预定功能
 {
     while(1)        
     {
         int start,end,num,n,flag=0;
         char cmd;
         string id,date,code,times,changguan;
+        string startt,endd;
         gym_order_ui();
         if(chance==0)
         {
@@ -449,6 +527,65 @@ void Guest::gym_order()     //顾客场地预定功能（有报错）
         if(flag==1)
             break;
         
+        cout<<"-------------------------------------"<<endl;
+        cout<<"您的下单时间为："<<timetostr((int)nowtime())<<endl;
+        cout<<"-------------------------------------"<<endl;
+
+        while(1)
+        {
+            cout<<"输入你想要租借日期(格式：yyyy:mm:dd）："<<endl;
+            cin>>date;
+            if(checkdate(date))
+                break;
+            else 
+                cout<<"您的输入不符合格式！请重新输入！"<<endl; 
+        }
+        if(((int)strtotime(date))-((int)nowtime())<(7*24*60*60) && ((int)strtotime(date))-((int)nowtime())>0)
+        {
+            cout<<"预定失败！您预定场地的时间需与当前时间间隔一周以上！"<<endl;
+            cout<<"按回车键退出并重新预定！"<<endl;
+            getchar();
+            getchar();
+            break;
+        }
+
+            
+        
+        while(1)
+        {
+            cout<<"输入你想要预定的开始时间(06:00-22:00)："<<endl;
+            cin>>startt;
+            start=strtoint(startt);
+            if(checktime(startt)==1&&(start>=6 && start<=22))
+                break;
+            else 
+                cout<<"您的输入不符合格式！请重新输入！"<<endl;
+        }
+        
+        while(1)
+        {
+            cout<<"输入你想要预定的结束时间(06:00-22:00)："<<endl;
+            cin>>endd;
+            end=strtoint(endd);
+            if(checktime(endd)&& (end>=6 && end<=22))
+                break;
+            else 
+                cout<<"您的输入不符合格式！请重新输入！"<<endl;
+        }
+
+
+
+
+        for(int j=start;j<=end;j++)
+        {
+            if(gym[num].time[j]==1)
+            {   
+                cout<<"你选择的场地该时间段没有空余！预定失败！"<<endl;;
+                break;
+            }
+        }
+
+
         if(count-gym[num].rent<0)
         {
             cout<<"您的余额不足支付该场地租金！请换场地或充值！"<<endl;
@@ -464,68 +601,38 @@ void Guest::gym_order()     //顾客场地预定功能（有报错）
             break;
         }
 
-        while(1)
-        {
-            cout<<"输入下单时间(格式：yyyy:mm:dd:hh:mm）："<<endl;
-            cin>>times;
-            if(checktime(times))
-                break;
-            else 
-                cout<<"您的输入不符合格式！请重新输入！"<<endl;
-        }
-
-        while(1)
-        {
-            cout<<"输入你想要租借日期(格式：yyyy:mm:dd）："<<endl;
-            cin>>date;
-            if(checkdate(date))
-                break;
-            else 
-                cout<<"您的输入不符合格式！请重新输入！"<<endl;
-        }
-
-        while(1)
-        {
-            cout<<"输入你想要预定的开始时间(6-22)："<<endl;
-            cin>>start;
-            cout<<"输入你想要预定的结束时间(6-22)："<<endl;
-            cin>>end;
-            if(start>=6 && start<=22 && end>=6 && end<=22)
-                break;
-            else 
-                cout<<"您的输入不符合格式！请重新输入！"<<endl;
-        }
-
-        for(int j=start;j<=end;j++)
-        {
-            if(gym[num].time[j]==1)
-            {   
-                cout<<"你选择的场地该时间段没有空余！预定失败！"<<endl;;
-                break;
-            }
-        }
-
-
-
-
         //此处开始生成订单
         order[orders].order_number=guest[login_num].id+times;
-        order[orders].order_date=date;
+        order[orders].order_date=timetostr((int)nowtime());
         order[orders].id=id;
         order[orders].date=date;
         order[orders].start=start;
         order[orders].end=end;
         order[orders].belong=name;
         order[orders].gym_belong=changguan;
-        cout<<"订单生成完毕，具体信息如下："<<endl;
-        order[orders].show();
+        order[orders].age=age;
+        order[orders].sports=gym[num].sport_type;
+
         gym[num].order_sum++;               //所预定场地预定量
         gym[num].rent_sum+=gym[num].rent;   //所预定场地营业额增加
         orders++;                           //订单总数+1
         chance--;                           //该用户本次租借机会-1
         count-=gym[num].rent;               //用户租金减少
 
-        cout<<"[*]你想要继续预定吗？(y/n)"<<endl;
+        for(int k=0;k<sportstypes;k++)
+        {
+            if(gym[num].sport_type==sportstype[k].type)
+            {
+                if(sex=="男")
+                    sportstype[k].male++;
+                else if(sex=="女")
+                    sportstype[k].female++;
+            }
+        }
+
+        cout<<"订单生成完毕，具体信息如下："<<endl;
+        order[orders].show();
+        cout<<endl<<"[*]你想要继续预定吗？(y/n)"<<endl;
         cin>>cmd;
         if(cmd=='n' || cmd=='N')
             break;
@@ -552,6 +659,15 @@ void Guest::rm_order()      //顾客取消订单功能（伪处理）
         {
             if(order[i].belong==name && rm_id==order[i].order_number)
             {
+                if(((int)strtotime(order[i].date))-((int)nowtime())<(24*60*60))
+                {
+                    cout<<"预定取消失败！！距离预约事件不足24小时！"<<endl;
+                    cout<<"按回车键退出...！"<<endl;
+                    getchar();
+                    getchar();
+                    break;
+                }
+                
                 order[i].belong=="trush";   //改变从属场馆进行伪删除
                 flag=1;
                 cout<<endl<<"[*]订单删除成功！按回车继续！"<<endl;
@@ -560,6 +676,17 @@ void Guest::rm_order()      //顾客取消订单功能（伪处理）
                 gym[i].rent_sum-=gym[i].rent;   //场地营业额减少
                 gym[i].order_sum--;              //场地预定量减少
                 count+=gym[i].rent;             //返还金额
+
+                for(int k=0;k<sportstypes;k++)
+                {
+                    if(order[i].sports==sportstype[k].type)
+                    {
+                        if(sex=="男")
+                            sportstype[k].male--;
+                        else if(sex=="女")
+                            sportstype[k].female--;
+                    }
+                }
                 getchar();
             }
         }
@@ -586,7 +713,7 @@ void Guest::query_order()   //顾客查询订单功能
 ///----------------成员函数分割线----------------------//
 
 
-void Admin::modify()        //管理员个人信息管理功能（有报错）
+void Admin::modify()        //管理员个人信息管理功能
 {
     int flag=0;
     while(1)
@@ -692,7 +819,7 @@ void Admin::modify()        //管理员个人信息管理功能（有报错）
 }
 
 
-void Admin::order_mng()        //管理员订单管理功能（剩两个功能）
+void Admin::order_mng()        //管理员订单管理功能
 {
     int flag=0;
     while(1)
@@ -751,8 +878,35 @@ void Admin::order_mng()        //管理员订单管理功能（剩两个功能�
             case 4:
             {
                 cout<<"年龄分布如下："<<endl;
-                //重构完再肝
-
+                for(int i=0;i<gyms;i++)
+                {
+                    if(gym_name==gym[i].belong)
+                    {
+                        int a=0,b=0,c=0,d=0,e=0;
+                        for(int j=0;j<orders;j++)
+                        {
+                            if(order[j].id==gym[j].id)
+                            {
+                                if(order[j].age>0 && order[j].age<12)
+                                    a++;
+                                else if(order[j].age>12 && order[j].age<20)
+                                    b++;
+                                else if(order[j].age>20 && order[j].age<40)
+                                    c++;
+                                else if(order[j].age>40 && order[j].age<60)
+                                    d++;
+                                else if(order[j].age>60)
+                                    e++;
+                            }
+                        }
+                        cout<<"-----------------------"<<e<<endl;
+                        cout<<"[-]场地"<<gym[i].id<<"0-12岁的人数有："<<a<<endl;
+                        cout<<"[-]场地"<<gym[i].id<<"12-20岁的人数有："<<b<<endl;
+                        cout<<"[-]场地"<<gym[i].id<<"20-40岁的人数有："<<c<<endl;
+                        cout<<"[-]场地"<<gym[i].id<<"40-60岁的人数有："<<d<<endl;
+                        cout<<"[-]场地"<<gym[i].id<<"60岁+的人数有："<<e<<endl;
+                    }
+                }
                 cout<<endl<<"查询完成！按回车键继续..."<<endl;
                 getchar();getchar();
                 break;
@@ -784,8 +938,26 @@ void Admin::order_mng()        //管理员订单管理功能（剩两个功能�
             }
             case 6:
             {
-                //重构完再肝
-                cout<<endl<<"查询完成！按回车键继续..."<<endl;
+                int max1,max2,temp1=0,temp2=0;
+                max1=sportstype[0].male;
+                max2=sportstype[0].female;
+                for(int i=0;i<sportstypes;i++)
+                {
+                    if(sportstype[i].male>max1)
+                    {
+                        max1=sportstype[i].male;
+                        temp1=i;
+                    }
+                    if(sportstype[i].female>max2)
+                    {
+                        max2=sportstype[i].female;
+                        temp2=i;
+                    }
+                }
+                
+                cout<<endl<<"最受男士欢迎的运动项目是："<<sportstype[temp1].type<<endl;
+                cout<<"最受女士欢迎的运动项目是："<<sportstype[temp2].type<<endl;
+                cout<<endl<<"统计完成！按回车键继续..."<<endl;
                 getchar();getchar();
                 break;
             }
@@ -794,9 +966,9 @@ void Admin::order_mng()        //管理员订单管理功能（剩两个功能�
                 int temp,a[orders]={0};
                 for(int j=0;j<orders;j++)
                 {
+                    int min=order[0].start;
                     for(int i=0;i<orders;i++)
                     {
-                        float min=order[0].start;
                         if(min>=order[i].start && a[i]==0)
                         {
                             min=order[i].start;
@@ -822,11 +994,12 @@ void Admin::order_mng()        //管理员订单管理功能（剩两个功能�
     }
 }
 
-void Admin::gym_mng()       //管理员场地管理功能(有报错)
+void Admin::gym_mng()       //管理员场地管理功能
 {
     while(1)
     {
         char cmd;
+        int k;
         gym_mng_ui();
         for(int i=0;i<gyms;i++)
             gym[i].show();
@@ -856,9 +1029,22 @@ void Admin::gym_mng()       //管理员场地管理功能(有报错)
         cin>>gym[gyms].sport_rec;
         cout<<"输入新场地适合的运动类型："<<endl;
         cin>>gym[gyms].sport_type;
+
+        for(k=0;k<sportstypes;k++)
+        {
+            if(sportstype[k].type==gym[gyms].sport_type)
+                sportstype[k].sum++;
+        }
+        if(k==sportstypes)
+        {
+            sportstype[sportstypes].sum=1;
+            sportstype[sportstypes].type=gym[gyms].sport_type;
+        }
+
         gym[gyms].belong=gym_name;
         gym[gyms].order_sum=0;
         gym[gyms].rent_sum=0;
+
 
         cout<<"--------------------------------"<<endl;
         cout<<"新场点点添加成功！信息如下："<<endl;
@@ -885,10 +1071,12 @@ void init()         //原始数据初始化函数
     gym[3].init("场地4",50.00,"北京",12,22,"乒乓球","篮球类型","场馆二");
     gym[4].init("场地5",60.00,"上海",12,24,"溜溜球","篮球类型","场馆三");
     gym[5].init("场地6",70.00,"上海",12,25,"游泳","游泳类型","场馆三");
-
+    sportstype[0].init(3,"足球类型");
+    sportstype[1].init(2,"篮球类型");
+    sportstype[2].init(1,"游泳类型");
 }
 
-void login(int operation)   //登录功能函数（有报错）
+void login(int operation)   //登录功能函数
 {
     int sub_operation;
     string password,id;
@@ -979,7 +1167,7 @@ void login(int operation)   //登录功能函数（有报错）
     
 }
 
-void regist_guest()         //顾客注册函数（有报错）
+void regist_guest()         //顾客注册函数
 {
     string pwd;
     system("clear");
@@ -1056,7 +1244,7 @@ void regist_guest()         //顾客注册函数（有报错）
     getchar();getchar();
 }
 
-void regist_admin()         //管理员注册函数(有报错)
+void regist_admin()         //管理员注册函数
 {
     string pwd;
     system("clear");
@@ -1147,34 +1335,6 @@ void regist_index()         //注册索引
     }
 }
 
-void main_index()           //主索引
-{
-    int operation;
-    while(1)
-    {
-        cin>>operation;
-        if(operation==1||operation==2)
-        {
-            login(operation);
-            break;
-        }
-        else if(operation==3)
-        {
-            regist_index();
-            break;
-        }
-        else if (operation==4)
-            exit(0);            //windows下使用exit即可
-        else
-        {
-            cout<<"没有这个功能！按回车重新选择操作！"<<endl;
-            getchar();getchar();
-            break;
-        }
-    }
-    system("clear");
-}
-
 void guest_index()          //顾客功能索引
 {
     int flag=0;
@@ -1221,6 +1381,33 @@ void admin_index()          //管理员功能索引
     }
 }
 
+void main_index()           //主索引
+{
+    int operation;
+    while(1)
+    {
+        cin>>operation;
+        if(operation==1||operation==2)
+        {
+            login(operation);
+            break;
+        }
+        else if(operation==3)
+        {
+            regist_index();
+            break;
+        }
+        else if (operation==4)
+            exit(0);            //windows下使用exit即可
+        else
+        {
+            cout<<"没有这个功能！按回车重新选择操作！"<<endl;
+            getchar();getchar();
+            break;
+        }
+    }
+    system("clear");
+}
 
 
 
