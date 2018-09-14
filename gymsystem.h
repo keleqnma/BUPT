@@ -13,6 +13,25 @@ typedef struct times
 }Times;
 
 /*-----------------------------------------------------【类定义】------------------------------------------------------------------------------*/
+class Sportstype    //运动类型类
+{
+    public:
+        int sum,male,female;
+        string type;
+        void init(int num,string stype)
+        {
+            sum=num;
+            type=stype;    
+        }
+        Sportstype()
+        {
+            male=0;
+            female=0;
+        }
+
+};
+
+
 class Order     //订单类
 {
     public:
@@ -45,7 +64,7 @@ class Gym       //场地类
     public:
         int order_sum;
         float rent_sum;
-
+        
         int time[24];
         float rent;
         string location;
@@ -55,7 +74,8 @@ class Gym       //场地类
         string sport_type;
         string belong;
         string id;
-        string situation;
+        
+
         void init(string x,float irent,string ilocation,int iage_limit_1,int iage_limit_2,string isports_rec,string isports_type,string ibelong)       //初始化函数
         {
             id=x;
@@ -68,6 +88,7 @@ class Gym       //场地类
             belong=ibelong;
             order_sum=0;
             rent_sum=0;
+
         }
         void show() //信息展示函数
         {
@@ -286,8 +307,8 @@ void gym_query_ui()
     outputline();
     cout<<"                 1.按场地名称查询"<<endl;
     cout<<"                 2.按场馆名称查询"<<endl;
-    cout<<"                 3.按场地类别"<<endl;
-    cout<<"                 4.所属区域查询"<<endl;
+    cout<<"                 3.按场地运动类别"<<endl;
+    cout<<"                 4.按所属区域查询"<<endl;
     cout<<"                 5.按空余场地查询"<<endl;
     cout<<"                 6.按租金排序所有场地"<<endl;
     cout<<"                 7.按预定量排序所有场地"<<endl;
@@ -347,5 +368,32 @@ void gym_mng_ui()
     outputline();
     cout<<"                 管理员场地管理模块"<<endl;
     outputline();
-    
+}
+
+void guest_modify_ui()
+{
+    system("clear");
+    outputline();
+    cout<<"                 个人信息修改模块"<<endl;
+    outputline();
+    cout<<"                 1.修改电话"<<endl;
+    cout<<"                 2.修改密码"<<endl;
+    cout<<"                 3.修改邮箱"<<endl;
+    cout<<"                 4.修改地址"<<endl;
+    cout<<"                 5.退出"<<endl;
+    outputline();
+}
+
+void admin_modify_ui()
+{
+        system("clear");
+        outputline();
+        cout<<"                 个人信息修改模块"<<endl;
+        outputline();
+        cout<<"                 1.修改电话"<<endl;
+        cout<<"                 2.修改密码"<<endl;
+        cout<<"                 3.修改邮箱"<<endl;
+        cout<<"                 4.退出"<<endl;
+        outputline();
+
 }

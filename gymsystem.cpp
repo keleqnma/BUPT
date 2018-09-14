@@ -17,17 +17,17 @@ using namespace std;
 
 int mode=0,login_num;
 int guests=GUEST,admins=ADMIN,gyms=GYM,orders=ORDER,sportstypes=SPORTS;    //常量变量化
-FILE *fin,*fout;
-Admin *admin = new Admin[10];
-Guest *guest = new Guest[10];
-Order *order = new Order[10];
-Gym *gym = new Gym[10];
-Sportstype *sportstype = new Sportstype[10];
+
+Admin *admin = new Admin[10];                       //实例化管理员类
+Guest *guest = new Guest[10];                       //实例化顾客类
+Order *order = new Order[10];                       //实例化订单类
+Gym *gym = new Gym[10];                             //实例化场地类
+Sportstype *sportstype = new Sportstype[10];        //实例化运动类型类
 
 /*-----------------------------------------------------【特殊功能函数】------------------------------------------------------------------------------*/
 
 
-int strtoint(string str)       
+int strtoint(string str)            //提取时间字符串中的数字
 {
 
     int a,b;
@@ -68,7 +68,7 @@ time_t strtotime(string timestring)  //字符串转时间戳函数
     return mktime(&tm);  
 }
 
-void query_result(int empty)        //查询结果反馈函数
+void query_result(int empty)        //查询结果反馈函数（找到条目/没有找到条目）
 {
     cout<<"-----------------------------------"<<endl;
     if(empty==0)
@@ -126,15 +126,6 @@ int checkid(string id)      //ID格式检测函数
         return 0;
 }
 
-int checkbetween(string id)      //间隔时长检测函数
-{
-    regex pattern("([0-9a-zA-Z]{6,7,8,9,10})$");
-    if(regex_match(id, pattern))
-        return 1;
-    else
-        return 0;
-}
-
 /*-----------------------------------------------------【成员函数】------------------------------------------------------------------------------*/
 
 
@@ -144,21 +135,11 @@ void Guest::modify()        //顾客个人信息修改功能
     while(1)
     {
         int operation;
-        system("clear");
-        outputline();
-        cout<<"                 个人信息修改模块"<<endl;
-        outputline();
-        cout<<"                 1.修改电话"<<endl;
-        cout<<"                 2.修改密码"<<endl;
-        cout<<"                 3.修改邮箱"<<endl;
-        cout<<"                 4.修改地址"<<endl;
-        cout<<"                 5.退出"<<endl;
-        outputline();
+        guest_modify_ui();
         Guest::show();
         outputline();
 
         cout<<"在此处继续选择您的操作："<<endl;
-        //scanf("%d",&operation);
         cin>>operation;
         switch(operation)
         {
@@ -264,7 +245,7 @@ void Guest::gym_query()     //顾客场地查询功能（排序有BUG）
         cin>>operation;
         switch(operation)
         {
-            case 1:
+            case 1:     //按场地编号查询
             {
                 string j;
                 int empty=0;
@@ -281,7 +262,7 @@ void Guest::gym_query()     //顾客场地查询功能（排序有BUG）
                 query_result(empty);
                 getchar();getchar();break;
             }
-            case 2:
+            case 2:     //按场馆名称查询
             {
                 string j;
                 int empty=0;
@@ -298,11 +279,11 @@ void Guest::gym_query()     //顾客场地查询功能（排序有BUG）
                 query_result(empty);
                 getchar();getchar();break;
             }
-            case 3:
+            case 3:     //按场地运动类别
             {
                 string j;
                 int empty=0;
-                cout<<"请输入场地类别"<<endl;
+                cout<<"请输入场地运动类别"<<endl;
                 cin>>j;
                 for(int i=0;i<gyms;i++)
                 {
@@ -315,7 +296,7 @@ void Guest::gym_query()     //顾客场地查询功能（排序有BUG）
                 query_result(empty);
                 getchar();getchar();break;
             }
-            case 4:
+            case 4:     //按所属区域查询
             {
                 string j;
                 int empty=0;
@@ -332,7 +313,7 @@ void Guest::gym_query()     //顾客场地查询功能（排序有BUG）
                 query_result(empty);
                 getchar();getchar();break;
             }
-            case 5: 
+            case 5:     //按空余场地查询
             {
                 int empty=0,start,end;
                 string date,startt,endd;
@@ -400,7 +381,7 @@ void Guest::gym_query()     //顾客场地查询功能（排序有BUG）
                 query_result(empty);
                 getchar();getchar();break;
             }
-            case 6:
+            case 6:     //按租金排序所有场地
             { 
                 int temp=0,a[gyms]={0};
                 for(int j=0;j<gyms;j++)
@@ -425,7 +406,7 @@ void Guest::gym_query()     //顾客场地查询功能（排序有BUG）
                 getchar();getchar();
                 break;
             }
-            case 7:
+            case 7:     //按预定量排序所有场地
             {
                 int temp,a[gyms]={0};
                 for(int j=0;j<gyms;j++)
@@ -609,9 +590,9 @@ void Guest::gym_order()     //顾客场地预定功能
         order[orders].start=start;
         order[orders].end=end;
         order[orders].belong=name;
-        order[orders].gym_belong=changguan;
-        order[orders].age=age;
-        order[orders].sports=gym[num].sport_type;
+        order[orders].gym_belong=changguan;          //该订单所属的场馆
+        order[orders].age=age;                      //顾客的年龄传入该订单
+        order[orders].sports=gym[num].sport_type;   //订单所选运动类型
 
         gym[num].order_sum++;               //所预定场地预定量
         gym[num].rent_sum+=gym[num].rent;   //所预定场地营业额增加
@@ -719,20 +700,11 @@ void Admin::modify()        //管理员个人信息管理功能
     while(1)
     {
         int operation;
-        system("clear");
-        outputline();
-        cout<<"                 个人信息修改模块"<<endl;
-        outputline();
-        cout<<"                 1.修改电话"<<endl;
-        cout<<"                 2.修改密码"<<endl;
-        cout<<"                 3.修改邮箱"<<endl;
-        cout<<"                 4.退出"<<endl;
-        outputline();
+        admin_modify_ui();
         Admin::show();
         outputline();
 
         cout<<"在此处继续选择您的操作："<<endl;
-        //scanf("%d",&operation);
         cin>>operation;
         switch(operation)
         {
