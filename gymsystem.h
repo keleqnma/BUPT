@@ -18,16 +18,14 @@ class Sportstype    //运动类型类
     public:
         int sum,male,female;
         string type;
-        void init(int num,string stype)
+        void init(int smale,int sfemale,int num,string stype)
         {
+            male=smale;
+            female=sfemale;
             sum=num;
             type=stype;    
         }
-        Sportstype()
-        {
-            male=0;
-            female=0;
-        }
+        
 
 };
 
@@ -41,11 +39,12 @@ class Order     //订单类
         string date;
         string gym_belong;     //所属场馆
         string sports;          //该订单对应的运动类型
+        string belong;      //从属于哪个顾客的订单
         int start;
         int end;
         int age;
-        string check;
-        string belong;      //从属于哪个顾客的订单
+        int check;
+
         void show()
         {
             cout<<"---------------------"<<endl;
@@ -57,26 +56,38 @@ class Order     //订单类
             cout<<"结束时间："<<end<<endl;
             cout<<"订单所有者："<<belong<<endl;
         }
+        void init(string a1,string a2,string a3,string a4,string a5,string a6,string a7,int b1,int b2,int b3,int b4)
+        {
+            order_number=a1;
+            order_date=a2;
+            id=a3;
+            date=a4;
+            gym_belong=a5;
+            sports=a6;
+            belong=a7;
+            start=b1;
+            end=b2;
+            age=b3;
+            check=b4;
+        }
 };
 
 class Gym       //场地类
 {
     public:
         int order_sum;
-        float rent_sum;
-        
-        int time[24];
-        float rent;
-        string location;
         int age_limit_1;
         int age_limit_2;
+        float rent;
+        float rent_sum;
+        string location;
         string sport_rec;
         string sport_type;
         string belong;
         string id;
         
 
-        void init(string x,float irent,string ilocation,int iage_limit_1,int iage_limit_2,string isports_rec,string isports_type,string ibelong)       //初始化函数
+        void init(string x,string ilocation,string isports_rec,string isports_type,string ibelong,int iage_limit_1,int iage_limit_2,int iorder_sum,float irent,float irent_sum)       //初始化函数
         {
             id=x;
             rent=irent;
@@ -86,10 +97,11 @@ class Gym       //场地类
             sport_rec=isports_rec;
             sport_type=isports_type;
             belong=ibelong;
-            order_sum=0;
-            rent_sum=0;
-
+            order_sum=iorder_sum;
+            rent_sum=irent_sum;
         }
+
+
         void show() //信息展示函数
         {
             cout<<"------------------"<<endl;
@@ -110,14 +122,14 @@ class Guest     //顾客类
         int chance;//记录预约上限
 
         int age;
-        long phone;
+        string phone;
         float count;
         string sex;
         string name;
         string email;
         string location;
         string id;
-        void init(string x,string y,string iname,int iage,string isex,float icount,long iphone,string iemail,string ilocation)//初始化函数
+        void init(string x,string y,string iname,string isex,string iemail,string ilocation,int iage,float icount,string iphone,int icancel)//初始化函数
         {
             id=x;
             password=y;
@@ -128,8 +140,7 @@ class Guest     //顾客类
             phone=iphone;
             email=iemail;
             location=ilocation;
-            cancel=0;
-            chance=3;
+            cancel=icancel;
         }
         void show() //信息展示函数
         {
@@ -147,7 +158,7 @@ class Guest     //顾客类
         {
             password = new_pwd;
         }
-        void changephone(long new_phone)//电话号码修改函数
+        void changephone(string new_phone)//电话号码修改函数
         {
             phone=new_phone;
         }
@@ -173,7 +184,6 @@ class Guest     //顾客类
         void gym_query();
         void rm_order();
         void query_order();
-    protected:
         string password;
 
 };
@@ -181,7 +191,7 @@ class Guest     //顾客类
 class Admin     //管理员类
 {
     public:
-        long phone;
+        string phone;
         string sex;
         string name;
         string gym_name;
@@ -190,7 +200,7 @@ class Admin     //管理员类
         void modify();
         void order_mng();
         void gym_mng();
-        void init(string x,string y,string isex,string iname,string igym_name,string iemail,long iphone) //初始化函数
+        void init(string x,string y,string isex,string iname,string igym_name,string iemail,string iphone) //初始化函数
         {
             id=x;
             password=y;
@@ -214,7 +224,7 @@ class Admin     //管理员类
         {
             password = new_pwd;
         }
-        void changephone(long new_phone)//电话号码修改函数
+        void changephone(string new_phone)//电话号码修改函数
         {
             phone=new_phone;
         }
@@ -229,8 +239,6 @@ class Admin     //管理员类
             else 
                 return 0;
         }
-
-    protected:
         string password;
 };
 
